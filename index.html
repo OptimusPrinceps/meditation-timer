@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meditation Timer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="home-view" class="view">
+    <div class="home-content">
+      <div id="home-name" class="home-name">—</div>
+      <div id="home-total" class="home-total">—</div>
+      <div id="home-breakdown" class="home-breakdown"></div>
+
+      <button id="btn-home-start" type="button" class="primary">Start</button>
+
+      <button id="btn-advance" type="button" class="link-button hidden"></button>
+
+      <p id="home-message" class="message"></p>
+    </div>
+
+    <div class="home-footer">
+      <button id="btn-open-settings" type="button" class="ghost">⚙ Settings</button>
+      <button id="btn-home-preview" type="button" class="ghost" title="Preview bell">▶︎ Bell</button>
+    </div>
+  </main>
+
+  <main id="settings-view" class="view hidden">
+    <div class="settings-header">
+      <button id="btn-back-home" type="button">← Back</button>
+      <h1>Settings</h1>
+    </div>
+
+    <section class="card">
+      <div class="row">
+        <label for="config-select">Saved configs</label>
+        <select id="config-select">
+          <option value="">— none saved —</option>
+        </select>
+        <button id="btn-delete" type="button">Delete</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <label for="rotation-a">Daily rotation A</label>
+        <select id="rotation-a"><option value="">—</option></select>
+      </div>
+      <div class="row">
+        <label for="rotation-b">Daily rotation B</label>
+        <select id="rotation-b"><option value="">—</option></select>
+      </div>
+      <div class="row">
+        <button id="btn-save-rotation" type="button">Save rotation</button>
+        <button id="btn-clear-rotation" type="button">Clear</button>
+        <span id="rotation-status" class="rotation-status"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <label for="config-name">Name</label>
+        <input id="config-name" type="text" placeholder="e.g. Morning 20" />
+      </div>
+
+      <div class="row">
+        <label for="delay-seconds">Opening delay (sec)</label>
+        <input id="delay-seconds" type="number" min="0" step="1" value="30" />
+      </div>
+
+      <div class="row">
+        <label for="interval-count">Number of intervals</label>
+        <input id="interval-count" type="number" min="1" step="1" value="4" />
+      </div>
+
+      <div class="row">
+        <label for="interval-minutes">Interval length (min)</label>
+        <input id="interval-minutes" type="number" min="0.5" step="0.5" value="5" />
+      </div>
+
+      <div class="row">
+        <label for="free-minutes">Free section (min)</label>
+        <input id="free-minutes" type="number" min="0" step="0.5" value="0" />
+      </div>
+
+      <div class="row">
+        <button id="btn-save" type="button">Save</button>
+      </div>
+    </section>
+
+    <section class="card total">
+      <div id="total-display">20:00</div>
+      <div id="total-breakdown">Intervals 20:00 · Free 0:00</div>
+    </section>
+
+    <p id="setup-message" class="message"></p>
+  </main>
+
+  <main id="session-view" class="view hidden">
+    <div id="segment-label" class="segment-label">Get ready</div>
+    <div id="countdown" class="countdown">00:00</div>
+    <div id="session-progress" class="session-progress"></div>
+
+    <div class="row controls">
+      <button id="btn-pause" type="button">Pause</button>
+      <button id="btn-resume" type="button" class="hidden">Resume</button>
+      <button id="btn-stop" type="button">Stop</button>
+      <button id="btn-back" type="button" class="hidden">← Back</button>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

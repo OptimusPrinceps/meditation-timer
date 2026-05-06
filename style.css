@@ -1,0 +1,275 @@
+:root {
+  --bg: #0f1115;
+  --card: #1a1d24;
+  --text: #e6e6e6;
+  --muted: #8a8f99;
+  --accent: #7aa2f7;
+  --danger: #f7768e;
+  --border: #2a2e38;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+}
+
+main.view {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 20px 80px;
+}
+
+main.view.hidden { display: none !important; }
+
+h1 {
+  font-weight: 500;
+  font-size: 28px;
+  margin: 0 0 24px;
+  letter-spacing: -0.5px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+
+.row label {
+  flex: 0 0 180px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+input[type="text"], input[type="number"], select {
+  background: #0f1115;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  flex: 1 1 auto;
+  min-width: 80px;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+button {
+  background: #252a33;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+button:hover { background: #2e333d; }
+
+button.primary {
+  background: var(--accent);
+  color: #0f1115;
+  border-color: var(--accent);
+  font-weight: 600;
+  padding: 18px 56px;
+  font-size: 22px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  min-width: 200px;
+}
+
+button.primary:hover { filter: brightness(1.1); }
+
+button.hidden { display: none; }
+
+.total {
+  padding: 28px 18px;
+  text-align: center;
+}
+
+.total #total-display {
+  font-size: 56px;
+  font-weight: 200;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -2px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.total #total-breakdown {
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.start-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+.message {
+  text-align: center;
+  color: var(--danger);
+  min-height: 1.2em;
+  font-size: 14px;
+  margin: 8px 0 0;
+}
+
+.rotation-status {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Home view */
+#home-view {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+}
+
+.home-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.home-name {
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+
+.home-total {
+  font-size: 96px;
+  font-weight: 200;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -3px;
+  line-height: 1;
+}
+
+.home-breakdown {
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 24px;
+  min-height: 1.2em;
+}
+
+.link-button {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 14px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  background: transparent;
+  text-decoration: underline;
+}
+
+.home-footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+button.ghost:hover {
+  background: #1a1d24;
+  color: var(--text);
+}
+
+button.primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.settings-header h1 {
+  margin: 0;
+}
+
+/* Session view */
+#session-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.segment-label {
+  font-size: 22px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  letter-spacing: 0.5px;
+}
+
+.countdown {
+  font-size: 120px;
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -3px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.session-progress {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 40px;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  justify-content: center;
+}

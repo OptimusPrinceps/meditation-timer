@@ -626,6 +626,7 @@ const els = {
   rotationStatus: $('rotation-status'),
   configName: $('config-name'),
   delaySeconds: $('delay-seconds'),
+  warmupMinutes: $('warmup-minutes'),
   intervalCount: $('interval-count'),
   intervalMinutes: $('interval-minutes'),
   freeMinutes: $('free-minutes'),
@@ -649,6 +650,7 @@ let currentConfigName = null;
 function readForm() {
   return {
     delaySeconds: Math.max(0, parseInt(els.delaySeconds.value, 10) || 0),
+    warmupMinutes: Math.max(0, parseFloat(els.warmupMinutes.value) || 0),
     intervalCount: Math.max(1, parseInt(els.intervalCount.value, 10) || 1),
     intervalMinutes: Math.max(0.5, parseFloat(els.intervalMinutes.value) || 0.5),
     freeMinutes: Math.max(0, parseFloat(els.freeMinutes.value) || 0),
@@ -657,6 +659,7 @@ function readForm() {
 
 function writeForm(config) {
   els.delaySeconds.value = config.delaySeconds;
+  els.warmupMinutes.value = config.warmupMinutes || 0;
   els.intervalCount.value = config.intervalCount;
   els.intervalMinutes.value = config.intervalMinutes;
   els.freeMinutes.value = config.freeMinutes;
@@ -1022,7 +1025,7 @@ els.btnClearRotation.addEventListener('click', () => {
   setMessage('Rotation cleared.', false);
 });
 
-for (const el of [els.delaySeconds, els.intervalCount, els.intervalMinutes, els.freeMinutes]) {
+for (const el of [els.delaySeconds, els.warmupMinutes, els.intervalCount, els.intervalMinutes, els.freeMinutes]) {
   el.addEventListener('input', updateTotal);
 }
 
@@ -1117,7 +1120,7 @@ for (const btn of els.rangeBtns) {
   setCurrentConfig(initial);
   // Pre-populate the settings form with the current config (so opening Settings shows it).
   if (initial) loadConfigByName(initial);
-  else writeForm({ delaySeconds: 30, intervalCount: 4, intervalMinutes: 5, freeMinutes: 0 });
+  else writeForm({ delaySeconds: 30, warmupMinutes: 0, intervalCount: 4, intervalMinutes: 5, freeMinutes: 0 });
 
   showHome();
 

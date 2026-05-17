@@ -148,7 +148,6 @@ function markRotationDone(name) {
 // Audio — pool of HTMLAudioElement so bells can overlap if needed
 // ============================================================================
 
-const BELL_GAP_MS = 2500;
 let bellSrc = null;
 let bellPool = [];
 let bellIndex = 0;
@@ -199,13 +198,14 @@ function playBellNow() {
   } catch {}
 }
 
-function scheduleBells(count) {
+function scheduleBells(count, gapMs) {
+  const gap = Number.isFinite(gapMs) && gapMs > 0 ? gapMs : 2500;
   const ids = [];
   for (let i = 0; i < count; i++) {
     if (i === 0) {
       playBellNow();
     } else {
-      ids.push(setTimeout(playBellNow, i * BELL_GAP_MS));
+      ids.push(setTimeout(playBellNow, i * gap));
     }
   }
   pendingBellTimeouts.push(...ids);
@@ -504,7 +504,7 @@ const Engine = {
 
   _endSegment() {
     const seg = this.schedule[this.index];
-    if (seg.bellsAfter > 0) scheduleBells(seg.bellsAfter);
+    if (seg.bellsAfter > 0) scheduleBells(seg.bellsAfter, seg.bellGapMs);
     if (this.index >= this.schedule.length - 1) {
       this._finish();
       return;

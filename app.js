@@ -7,6 +7,7 @@
 const CONFIGS_KEY = 'meditationTimer.configs.v1';
 const LAST_KEY = 'meditationTimer.lastConfig.v1';
 const ROTATION_KEY = 'meditationTimer.rotation.v1';
+const WEIGHTS_KEY = 'meditationTimer.weights.v1';
 
 function loadConfigs() {
   try {
@@ -55,6 +56,31 @@ function saveRotation(rot) {
 
 function clearRotation() {
   localStorage.removeItem(ROTATION_KEY);
+}
+
+function loadWeights() {
+  try {
+    return JSON.parse(localStorage.getItem(WEIGHTS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveWeights(map) {
+  localStorage.setItem(WEIGHTS_KEY, JSON.stringify(map));
+}
+
+function upsertWeight(dateStr, kg) {
+  const map = loadWeights();
+  map[dateStr] = kg;
+  saveWeights(map);
+}
+
+function getWeightsSorted() {
+  const map = loadWeights();
+  return Object.keys(map)
+    .sort()
+    .map((date) => ({ date, kg: map[date] }));
 }
 
 function todayLocal() {
@@ -241,6 +267,157 @@ function totalIntervalsMs(config) {
 }
 
 // ============================================================================
+// Weight tracking — pure functions for filtering, regression, and chart math
+// ============================================================================
+
+const DAY_MS = 86400000;
+
+function parseDateLocal(s) {
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function filterRange(entries, rangeKey) {
+  if (rangeKey === 'all') return entries.slice();
+  const days = parseInt(rangeKey, 10);
+  if (!days) return entries.slice();
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - days);
+  const cutoffMs = cutoff.getTime();
+  return entries.filter((e) => parseDateLocal(e.date).getTime() >= cutoffMs);
+}
+
+// Least-squares regression on (days since first entry, kg).
+// Returns {slope, intercept, firstMs} in kg/day, or null for <2 points.
+function linearRegression(entries) {
+  if (entries.length < 2) return null;
+  const firstMs = parseDateLocal(entries[0].date).getTime();
+  const n = entries.length;
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+  for (const e of entries) {
+    const x = (parseDateLocal(e.date).getTime() - firstMs) / DAY_MS;
+    const y = e.kg;
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  }
+  const den = n * sumXX - sumX * sumX;
+  if (den === 0) return { slope: 0, intercept: sumY / n, firstMs };
+  const slope = (n * sumXY - sumX * sumY) / den;
+  const intercept = (sumY - slope * sumX) / n;
+  return { slope, intercept, firstMs };
+}
+
+function formatWeeklyChange(slope) {
+  if (slope == null) return '—';
+  const perWeek = slope * 7;
+  if (Math.abs(perWeek) < 0.05) return '0.0 kg/wk';
+  const sign = perWeek < 0 ? '−' : '+';
+  return `${sign}${Math.abs(perWeek).toFixed(1)} kg/wk`;
+}
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  return el;
+}
+
+function formatChartDate(d) {
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${months[d.getMonth()]} ${d.getDate()}`;
+}
+
+function renderWeightChart(svg, entries, regression) {
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+  if (entries.length === 0) return;
+
+  const W = 600, H = 320;
+  const M = { top: 12, right: 16, bottom: 28, left: 50 };
+  const plotW = W - M.left - M.right;
+  const plotH = H - M.top - M.bottom;
+
+  const ys = entries.map((e) => e.kg);
+  let yMin = Math.min(...ys);
+  let yMax = Math.max(...ys);
+  if (yMin === yMax) { yMin -= 1; yMax += 1; }
+  const yPad = (yMax - yMin) * 0.1;
+  yMin -= yPad; yMax += yPad;
+
+  const xs = entries.map((e) => parseDateLocal(e.date).getTime());
+  const xMin = Math.min(...xs);
+  const xMax = Math.max(...xs);
+  const xRange = Math.max(1, xMax - xMin);
+
+  const xScale = (ms) => entries.length === 1
+    ? M.left + plotW / 2
+    : M.left + ((ms - xMin) / xRange) * plotW;
+  const yScale = (kg) => M.top + (1 - (kg - yMin) / (yMax - yMin)) * plotH;
+
+  // Y gridlines + labels
+  const yTickCount = 4;
+  for (let i = 0; i <= yTickCount; i++) {
+    const t = i / yTickCount;
+    const y = M.top + t * plotH;
+    const kg = yMax - t * (yMax - yMin);
+    svg.appendChild(svgEl('line', {
+      x1: M.left, x2: M.left + plotW, y1: y, y2: y, class: 'chart-grid',
+    }));
+    const text = svgEl('text', {
+      x: M.left - 8, y: y + 4, 'text-anchor': 'end', class: 'chart-tick',
+    });
+    text.textContent = kg.toFixed(1);
+    svg.appendChild(text);
+  }
+
+  // X labels — up to 4, evenly spaced
+  const xTickCount = entries.length === 1 ? 1 : Math.min(4, entries.length);
+  for (let i = 0; i < xTickCount; i++) {
+    const t = xTickCount === 1 ? 0.5 : i / (xTickCount - 1);
+    const ms = xMin + t * xRange;
+    const x = entries.length === 1 ? M.left + plotW / 2 : M.left + t * plotW;
+    const text = svgEl('text', {
+      x, y: H - 8, 'text-anchor': 'middle', class: 'chart-tick',
+    });
+    text.textContent = formatChartDate(new Date(ms));
+    svg.appendChild(text);
+  }
+
+  // Trend line first so it sits behind the data line
+  if (regression && entries.length >= 2) {
+    const dayEnd = (xMax - regression.firstMs) / DAY_MS;
+    const yStart = regression.intercept;
+    const yEnd = regression.intercept + regression.slope * dayEnd;
+    svg.appendChild(svgEl('line', {
+      x1: xScale(xMin), y1: yScale(yStart),
+      x2: xScale(xMax), y2: yScale(yEnd),
+      class: 'chart-trend',
+    }));
+  }
+
+  // Data line
+  if (entries.length >= 2) {
+    const d = entries.map((e, i) => {
+      const x = xScale(parseDateLocal(e.date).getTime());
+      const y = yScale(e.kg);
+      return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
+    }).join(' ');
+    svg.appendChild(svgEl('path', { d, class: 'chart-line' }));
+  }
+
+  // Data dots on top
+  for (const e of entries) {
+    svg.appendChild(svgEl('circle', {
+      cx: xScale(parseDateLocal(e.date).getTime()),
+      cy: yScale(e.kg),
+      r: 3.5,
+      class: 'chart-dot',
+    }));
+  }
+}
+
+// ============================================================================
 // Timer engine
 // ============================================================================
 
@@ -366,6 +543,21 @@ const els = {
   homeView: $('home-view'),
   settingsView: $('settings-view'),
   sessionView: $('session-view'),
+  weightView: $('weight-view'),
+  // tab bar
+  tabBar: $('tab-bar'),
+  btnTabTimer: $('btn-tab-timer'),
+  btnTabWeight: $('btn-tab-weight'),
+  // weight
+  weightDate: $('weight-date'),
+  weightKg: $('weight-kg'),
+  btnWeightSave: $('btn-weight-save'),
+  weightMessage: $('weight-message'),
+  weightWeekly: $('weight-weekly'),
+  weightCount: $('weight-count'),
+  weightChart: $('weight-chart'),
+  weightEmpty: $('weight-empty'),
+  rangeBtns: document.querySelectorAll('.range-btn'),
   // home
   homeName: $('home-name'),
   homeTotal: $('home-total'),
@@ -535,16 +727,26 @@ function hideAllViews() {
   els.homeView.classList.add('hidden');
   els.settingsView.classList.add('hidden');
   els.sessionView.classList.add('hidden');
+  els.weightView.classList.add('hidden');
+}
+
+function setActiveTab(name) {
+  els.btnTabTimer.classList.toggle('active', name === 'timer');
+  els.btnTabWeight.classList.toggle('active', name === 'weight');
 }
 
 function showHome() {
   hideAllViews();
+  els.tabBar.classList.remove('hidden');
+  setActiveTab('timer');
   els.homeView.classList.remove('hidden');
   refreshHome();
 }
 
 function showSettings() {
   hideAllViews();
+  els.tabBar.classList.remove('hidden');
+  setActiveTab('timer');
   els.settingsView.classList.remove('hidden');
   // Populate the settings form with whatever is currently loaded.
   if (currentConfigName && loadConfigs()[currentConfigName]) {
@@ -558,11 +760,49 @@ function showSettings() {
 
 function showSession() {
   hideAllViews();
+  els.tabBar.classList.add('hidden');
   els.sessionView.classList.remove('hidden');
   els.btnPause.classList.remove('hidden');
   els.btnResume.classList.add('hidden');
   els.btnStop.classList.remove('hidden');
   els.btnBack.classList.add('hidden');
+}
+
+let currentRange = '90';
+
+function showWeight() {
+  hideAllViews();
+  els.tabBar.classList.remove('hidden');
+  setActiveTab('weight');
+  els.weightView.classList.remove('hidden');
+  els.weightDate.value = todayLocal();
+  els.weightMessage.textContent = '';
+  refreshWeightView();
+}
+
+function setWeightMessage(text, isError = true) {
+  els.weightMessage.textContent = text;
+  els.weightMessage.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+}
+
+function refreshWeightView() {
+  const all = getWeightsSorted();
+  const entries = filterRange(all, currentRange);
+  const regression = linearRegression(entries);
+  els.weightCount.textContent = String(entries.length);
+  els.weightWeekly.textContent = formatWeeklyChange(regression ? regression.slope : null);
+
+  if (entries.length === 0) {
+    els.weightChart.classList.add('hidden');
+    els.weightEmpty.classList.remove('hidden');
+    els.weightEmpty.textContent = all.length === 0
+      ? 'Log a weight to see your chart.'
+      : 'No entries in this range.';
+    return;
+  }
+  els.weightEmpty.classList.add('hidden');
+  els.weightChart.classList.remove('hidden');
+  renderWeightChart(els.weightChart, entries, regression);
 }
 
 function refreshHome() {
@@ -761,6 +1001,44 @@ els.btnStop.addEventListener('click', () => {
 els.btnBack.addEventListener('click', () => {
   showHome();
 });
+
+// --- Tab bar handlers ---
+
+els.btnTabTimer.addEventListener('click', () => {
+  if (!els.sessionView.classList.contains('hidden')) return;
+  showHome();
+});
+
+els.btnTabWeight.addEventListener('click', () => {
+  if (!els.sessionView.classList.contains('hidden')) return;
+  showWeight();
+});
+
+// --- Weight view handlers ---
+
+els.btnWeightSave.addEventListener('click', () => {
+  const date = els.weightDate.value;
+  const kg = parseFloat(els.weightKg.value);
+  if (!date) return setWeightMessage('Pick a date.');
+  if (!Number.isFinite(kg) || kg <= 0) return setWeightMessage('Enter a weight in kg.');
+  upsertWeight(date, Math.round(kg * 10) / 10);
+  els.weightKg.value = '';
+  els.weightDate.value = todayLocal();
+  setWeightMessage(`Saved ${kg.toFixed(1)} kg for ${date}.`, false);
+  refreshWeightView();
+});
+
+els.weightKg.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') els.btnWeightSave.click();
+});
+
+for (const btn of els.rangeBtns) {
+  btn.addEventListener('click', () => {
+    currentRange = btn.dataset.range;
+    for (const b of els.rangeBtns) b.classList.toggle('active', b === btn);
+    refreshWeightView();
+  });
+}
 
 // --- Bootstrap ---
 

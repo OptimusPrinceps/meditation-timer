@@ -7,6 +7,11 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <nav id="tab-bar" class="tab-bar">
+    <button id="btn-tab-timer" type="button" class="tab active">Timer</button>
+    <button id="btn-tab-weight" type="button" class="tab">Weight</button>
+  </nav>
+
   <main id="home-view" class="view">
     <div class="home-content">
       <div id="home-name" class="home-name">—</div>
@@ -108,6 +113,47 @@
       <button id="btn-stop" type="button">Stop</button>
       <button id="btn-back" type="button" class="hidden">← Back</button>
     </div>
+  </main>
+
+  <main id="weight-view" class="view hidden">
+    <section class="card">
+      <div class="row">
+        <label for="weight-date">Date</label>
+        <input id="weight-date" type="date" />
+      </div>
+      <div class="row">
+        <label for="weight-kg">Weight (kg)</label>
+        <input id="weight-kg" type="number" min="0" step="0.1" placeholder="e.g. 82.5" />
+      </div>
+      <div class="row">
+        <button id="btn-weight-save" type="button" class="weight-save">Save</button>
+      </div>
+      <p id="weight-message" class="message"></p>
+    </section>
+
+    <section class="card">
+      <div class="weight-stats">
+        <div class="stat">
+          <div class="stat-label">Weekly change</div>
+          <div id="weight-weekly" class="stat-value">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Entries</div>
+          <div id="weight-count" class="stat-value">0</div>
+        </div>
+      </div>
+      <div class="range-row" role="group" aria-label="Time range">
+        <button type="button" class="range-btn" data-range="30">30d</button>
+        <button type="button" class="range-btn active" data-range="90">90d</button>
+        <button type="button" class="range-btn" data-range="365">1y</button>
+        <button type="button" class="range-btn" data-range="all">All</button>
+      </div>
+    </section>
+
+    <section class="card chart-card">
+      <svg id="weight-chart" class="weight-chart" viewBox="0 0 600 320" aria-label="Weight over time"></svg>
+      <p id="weight-empty" class="chart-empty">Log a weight to see your chart.</p>
+    </section>
   </main>
 
   <script src="app.js"></script>

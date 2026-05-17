@@ -255,28 +255,44 @@ function minutesToMs(min) {
   return Math.round(min * 60 * 1000);
 }
 
-function buildSchedule(config) {
+function buildSchedule(config, bellTiming) {
+  const openingGapMs = Math.round(bellTiming.openingGapSeconds * 1000);
+  const closingGapMs = Math.round(bellTiming.closingGapSeconds * 1000);
+
   const segments = [];
   const delaySec = config.delaySeconds;
+  const warmupMs = minutesToMs(config.warmupMinutes || 0);
+  const intervalDur = minutesToMs(config.intervalMinutes);
+  const hasFree = config.freeMinutes > 0;
+  const hasWarmup = warmupMs > 0;
+  const n = config.intervalCount;
 
   segments.push({
     kind: 'delay',
     label: delaySec > 0 ? 'Get ready' : 'Starting',
     durationMs: delaySec * 1000,
     bellsAfter: 3,
+    bellGapMs: openingGapMs,
   });
 
-  const intervalDur = minutesToMs(config.intervalMinutes);
-  const hasFree = config.freeMinutes > 0;
-  const n = config.intervalCount;
+  if (hasWarmup) {
+    segments.push({
+      kind: 'warmup',
+      label: 'Warmup',
+      durationMs: warmupMs,
+      bellsAfter: 1,
+    });
+  }
 
   for (let i = 0; i < n; i++) {
     const isLast = i === n - 1;
+    const endsSession = isLast && !hasFree;
     segments.push({
       kind: 'interval',
       label: `Interval ${i + 1} of ${n}`,
       durationMs: intervalDur,
-      bellsAfter: isLast ? (hasFree ? 1 : 3) : 1,
+      bellsAfter: endsSession ? 2 : 1,
+      ...(endsSession ? { bellGapMs: closingGapMs } : {}),
     });
   }
 
@@ -285,7 +301,8 @@ function buildSchedule(config) {
       kind: 'free',
       label: 'Free time',
       durationMs: minutesToMs(config.freeMinutes),
-      bellsAfter: 3,
+      bellsAfter: 2,
+      bellGapMs: closingGapMs,
     });
   }
 

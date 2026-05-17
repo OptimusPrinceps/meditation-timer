@@ -951,7 +951,7 @@ async function startSession() {
   markRotationDone(currentConfigName);
   refreshRotationStatus();
 
-  const schedule = buildSchedule(config);
+  const schedule = buildSchedule(config, loadBellTiming());
   showSession();
   acquireWakeLock();
   Engine.start(schedule, { onTick, onComplete });

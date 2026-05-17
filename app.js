@@ -8,6 +8,36 @@ const CONFIGS_KEY = 'meditationTimer.configs.v1';
 const LAST_KEY = 'meditationTimer.lastConfig.v1';
 const ROTATION_KEY = 'meditationTimer.rotation.v1';
 const WEIGHTS_KEY = 'meditationTimer.weights.v1';
+const BELL_TIMING_KEY = 'meditationTimer.bellTiming.v1';
+const BELL_GAP_MIN_SEC = 0.2;
+const BELL_GAP_MAX_SEC = 10;
+const DEFAULT_OPENING_GAP_SEC = 2.5;
+const DEFAULT_CLOSING_GAP_SEC = 0.5;
+
+function clampGapSeconds(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return DEFAULT_OPENING_GAP_SEC;
+  return Math.min(BELL_GAP_MAX_SEC, Math.max(BELL_GAP_MIN_SEC, n));
+}
+
+function loadBellTiming() {
+  let raw = null;
+  try { raw = JSON.parse(localStorage.getItem(BELL_TIMING_KEY)); } catch {}
+  const src = raw && typeof raw === 'object' ? raw : {};
+  return {
+    openingGapSeconds: clampGapSeconds(src.openingGapSeconds ?? DEFAULT_OPENING_GAP_SEC),
+    closingGapSeconds: clampGapSeconds(src.closingGapSeconds ?? DEFAULT_CLOSING_GAP_SEC),
+  };
+}
+
+function saveBellTiming(timing) {
+  const clean = {
+    openingGapSeconds: clampGapSeconds(timing.openingGapSeconds),
+    closingGapSeconds: clampGapSeconds(timing.closingGapSeconds),
+  };
+  localStorage.setItem(BELL_TIMING_KEY, JSON.stringify(clean));
+  return clean;
+}
 
 function loadConfigs() {
   try {

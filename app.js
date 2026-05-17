@@ -631,6 +631,10 @@ const els = {
   intervalMinutes: $('interval-minutes'),
   freeMinutes: $('free-minutes'),
   btnSave: $('btn-save'),
+  openingGapSec: $('opening-gap-sec'),
+  closingGapSec: $('closing-gap-sec'),
+  btnSaveBells: $('btn-save-bells'),
+  bellsStatus: $('bells-status'),
   totalDisplay: $('total-display'),
   totalBreakdown: $('total-breakdown'),
   message: $('setup-message'),
@@ -735,6 +739,12 @@ function refreshRotationStatus() {
     : `Today: ${suggestion}`;
 }
 
+function populateBellsForm() {
+  const t = loadBellTiming();
+  els.openingGapSec.value = t.openingGapSeconds;
+  els.closingGapSec.value = t.closingGapSeconds;
+}
+
 function refreshConfigSelect(selectName) {
   const configs = loadConfigs();
   const names = Object.keys(configs).sort((a, b) => a.localeCompare(b));
@@ -810,6 +820,7 @@ function showSettings() {
   }
   refreshConfigSelect(currentConfigName);
   refreshRotationSelects();
+  populateBellsForm();
   setMessage('');
 }
 
@@ -1028,6 +1039,17 @@ els.btnClearRotation.addEventListener('click', () => {
   els.rotationB.value = '';
   refreshRotationStatus();
   setMessage('Rotation cleared.', false);
+});
+
+els.btnSaveBells.addEventListener('click', () => {
+  const saved = saveBellTiming({
+    openingGapSeconds: parseFloat(els.openingGapSec.value),
+    closingGapSeconds: parseFloat(els.closingGapSec.value),
+  });
+  els.openingGapSec.value = saved.openingGapSeconds;
+  els.closingGapSec.value = saved.closingGapSeconds;
+  els.bellsStatus.textContent = 'Saved.';
+  setTimeout(() => { els.bellsStatus.textContent = ''; }, 2000);
 });
 
 for (const el of [els.delaySeconds, els.warmupMinutes, els.intervalCount, els.intervalMinutes, els.freeMinutes]) {

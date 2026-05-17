@@ -104,6 +104,21 @@
       <div id="total-breakdown">Intervals 20:00 · Free 0:00</div>
     </section>
 
+    <section class="card">
+      <div class="row">
+        <label for="opening-gap-sec">Opening bell gap (sec)</label>
+        <input id="opening-gap-sec" type="number" min="0.2" max="10" step="0.1" value="2.5" />
+      </div>
+      <div class="row">
+        <label for="closing-gap-sec">Closing bell gap (sec)</label>
+        <input id="closing-gap-sec" type="number" min="0.2" max="10" step="0.1" value="0.5" />
+      </div>
+      <div class="row">
+        <button id="btn-save-bells" type="button">Save bells</button>
+        <span id="bells-status" class="rotation-status"></span>
+      </div>
+    </section>
+
     <p id="setup-message" class="message"></p>
   </main>
 

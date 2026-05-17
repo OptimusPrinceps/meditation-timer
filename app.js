@@ -677,10 +677,14 @@ function updateTotal() {
   const c = readForm();
   const intervalsMs = totalIntervalsMs(c);
   const freeMs = minutesToMs(c.freeMinutes);
+  const warmupMs = minutesToMs(c.warmupMinutes || 0);
   const totalMs = intervalsMs + freeMs;
   els.totalDisplay.textContent = formatMmSs(totalMs);
-  els.totalBreakdown.textContent =
-    `Intervals ${formatMmSs(intervalsMs)} · Free ${formatMmSs(freeMs)}`;
+  const parts = [];
+  if (warmupMs > 0) parts.push(`Warmup ${formatMmSs(warmupMs)}`);
+  parts.push(`Intervals ${formatMmSs(intervalsMs)}`);
+  parts.push(`Free ${formatMmSs(freeMs)}`);
+  els.totalBreakdown.textContent = parts.join(' · ');
 }
 
 let activeSessionName = '';
@@ -874,6 +878,7 @@ function refreshHome() {
   const freeMs = minutesToMs(config.freeMinutes);
   els.homeTotal.textContent = formatMmSs(intervalsMs + freeMs);
   const parts = [`${config.intervalCount} × ${config.intervalMinutes} min`];
+  if (config.warmupMinutes > 0) parts.push(`Warmup ${config.warmupMinutes} min`);
   if (config.freeMinutes > 0) parts.push(`Free ${config.freeMinutes} min`);
   if (config.delaySeconds > 0) parts.push(`Delay ${config.delaySeconds}s`);
   els.homeBreakdown.textContent = parts.join(' · ');

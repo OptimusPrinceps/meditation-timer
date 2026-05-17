@@ -348,6 +348,10 @@ button.weight-save:hover {
   filter: brightness(1.1);
 }
 
+button.weight-export {
+  font-weight: 500;
+}
+
 .weight-stats {
   display: flex;
   gap: 24px;

@@ -552,6 +552,7 @@ const els = {
   weightDate: $('weight-date'),
   weightKg: $('weight-kg'),
   btnWeightSave: $('btn-weight-save'),
+  btnWeightExport: $('btn-weight-export'),
   weightMessage: $('weight-message'),
   weightWeekly: $('weight-weekly'),
   weightCount: $('weight-count'),
@@ -1030,6 +1031,22 @@ els.btnWeightSave.addEventListener('click', () => {
 
 els.weightKg.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') els.btnWeightSave.click();
+});
+
+els.btnWeightExport.addEventListener('click', () => {
+  const map = loadWeights();
+  const json = JSON.stringify(map, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `meditation-weights-${todayLocal()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  const count = Object.keys(map).length;
+  setWeightMessage(`Exported ${count} ${count === 1 ? 'entry' : 'entries'}.`, false);
 });
 
 for (const btn of els.rangeBtns) {

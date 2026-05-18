@@ -682,7 +682,7 @@ function updateTotal() {
   const intervalsMs = totalIntervalsMs(c);
   const freeMs = minutesToMs(c.freeMinutes);
   const warmupMs = minutesToMs(c.warmupMinutes || 0);
-  const totalMs = intervalsMs + freeMs;
+  const totalMs = warmupMs + intervalsMs + freeMs;
   els.totalDisplay.textContent = formatMmSs(totalMs);
   const parts = [];
   if (warmupMs > 0) parts.push(`Warmup ${formatMmSs(warmupMs)}`);
@@ -887,7 +887,8 @@ function refreshHome() {
   els.homeName.textContent = currentConfigName;
   const intervalsMs = totalIntervalsMs(config);
   const freeMs = minutesToMs(config.freeMinutes);
-  els.homeTotal.textContent = formatMmSs(intervalsMs + freeMs);
+  const warmupMs = minutesToMs(config.warmupMinutes || 0);
+  els.homeTotal.textContent = formatMmSs(warmupMs + intervalsMs + freeMs);
   const parts = [`${config.intervalCount} × ${config.intervalMinutes} min`];
   if (config.warmupMinutes > 0) parts.push(`Warmup ${config.warmupMinutes} min`);
   if (config.freeMinutes > 0) parts.push(`Free ${config.freeMinutes} min`);

@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "version": 1,
+    "updatedAt": 1779289687074,
+    "seeded": true
+  },
+  "configs": {
+    "Metta Bhavana": {
+      "delaySeconds": 300,
+      "warmupMinutes": 9,
+      "intervalCount": 5,
+      "intervalMinutes": 4,
+      "freeMinutes": 2
+    },
+    "Breath": {
+      "delaySeconds": 300,
+      "warmupMinutes": 9,
+      "intervalCount": 4,
+      "intervalMinutes": 5,
+      "freeMinutes": 2
+    },
+    "Gratitude": {
+      "delaySeconds": 0,
+      "intervalCount": 1,
+      "intervalMinutes": 9,
+      "freeMinutes": 0
+    }
+  },
+  "lastConfig": "Breath",
+  "rotation": {
+    "a": "Breath",
+    "b": "Metta Bhavana",
+    "lastDoneName": "Breath",
+    "lastDoneDate": "2026-05-20"
+  },
+  "bellTiming": {
+    "openingGapSeconds": 2.5,
+    "closingGapSeconds": 1
+  },
+  "weights": {
+    "2026-05-06": 82.8,
+    "2026-05-07": 82.8,
+    "2026-05-08": 83.2,
+    "2026-05-09": 82.1,
+    "2026-05-11": 83.3,
+    "2026-05-12": 83.4,
+    "2026-05-13": 81.9,
+    "2026-05-14": 82.3,
+    "2026-05-15": 82.2,
+    "2026-05-16": 82,
+    "2026-05-17": 82.1,
+    "2026-05-18": 82.8,
+    "2026-05-19": 82.7,
+    "2026-05-20": 82.8
+  },
+  "weightGoal": null,
+  "emissions": {
+    "2026-05-07": true
+  },
+  "plants": [
+    {
+      "id": "84b36ad0-42e8-420c-94c0-03c3c66ebda5",
+      "name": "Jophiel",
+      "emoji": "🌳",
+      "log": {
+        "2026-05-20": true
+      }
+    }
+  ],
+  "coach": {}
+}

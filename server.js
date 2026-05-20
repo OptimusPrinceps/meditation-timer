@@ -14,8 +14,30 @@ const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
 const STORE_PATH = path.join(DATA_DIR, 'store.json');
-const PORT = process.env.PORT || 8787;
 
+// Load secrets from a gitignored `.env` (KEY=value lines) into process.env, so
+// the coach's `claude` subprocess inherits CLAUDE_CODE_OAUTH_TOKEN. A real
+// environment variable always wins — the file only fills in what isn't set.
+// Runs before the constants below so `.env` can also configure PORT.
+function loadEnvFile() {
+  let text;
+  try { text = fs.readFileSync(path.join(ROOT, '.env'), 'utf8'); } catch { return; }
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    let value = trimmed.slice(eq + 1).trim();
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    if (key && process.env[key] === undefined) process.env[key] = value;
+  }
+}
+loadEnvFile();
+
+const PORT = process.env.PORT || 8787;
 const EMPTY_STORE = { meta: { version: 1, updatedAt: 0, seeded: false } };
 
 function readStore() {
@@ -42,6 +64,8 @@ const MIME = {
 function serveStatic(req, res) {
   let rel = decodeURIComponent(req.url.split('?')[0]);
   if (rel === '/') rel = '/index.html';
+  // Never serve dotfiles (.env, .git, .gitignore, …) as static content.
+  if (rel.split('/').some((seg) => seg.startsWith('.'))) { res.writeHead(403); return res.end('Forbidden'); }
   const filePath = path.join(ROOT, path.normalize(rel));
   if (!filePath.startsWith(ROOT)) { res.writeHead(403); return res.end('Forbidden'); }
   // The store is reachable only through the API, never as a raw static file.

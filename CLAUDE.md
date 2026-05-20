@@ -13,9 +13,11 @@ test for the stats math: `node --test`.
 `bell.mp3` must sit next to `index.html` for the timer audio to work (the app probes
 for `bell.mp3` then `bell.wav`).
 
-**Coaching auth:** run `claude setup-token` once and set `CLAUDE_CODE_OAUTH_TOKEN` in
-the environment that launches the server. Ensure `ANTHROPIC_API_KEY` is NOT set, or it
-takes precedence and reverts to paid API billing instead of the Max subscription.
+**Coaching auth:** run `claude setup-token` once, then `cp .env.example .env` and paste
+the token into `CLAUDE_CODE_OAUTH_TOKEN`. `server.js` loads the gitignored `.env` into
+`process.env` on startup (a real env var still wins). Ensure `ANTHROPIC_API_KEY` is NOT
+set anywhere, or it takes precedence and reverts to paid API billing instead of the Max
+subscription.
 
 **Browser code stays dependency-free:** classic `<script>` tags, shared global scope,
 no ES modules/`import`/`export`/bundlers. Server files (`server.js`, `server/*.js`) are

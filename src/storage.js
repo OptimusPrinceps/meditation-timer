@@ -9,7 +9,7 @@ const LAST_KEY = 'meditationTimer.lastConfig.v1';
 const ROTATION_KEY = 'meditationTimer.rotation.v1';
 const WEIGHTS_KEY = 'meditationTimer.weights.v1';
 const EMISSIONS_KEY = 'meditationTimer.emissions.v1';
-const WATERING_KEY = 'meditationTimer.watering.v1';
+const PLANTS_KEY = 'meditationTimer.plants.v1';
 const BELL_TIMING_KEY = 'meditationTimer.bellTiming.v1';
 const BELL_GAP_MIN_SEC = 0.2;
 const BELL_GAP_MAX_SEC = 10;
@@ -147,36 +147,65 @@ function getEmissionsSorted() {
     .map((date) => ({ date }));
 }
 
-// --- Watering: a map { "YYYY-MM-DD": true }; presence = watered (per-day dedupe).
-function loadWatering() {
+// --- Plants: array of { id, name, emoji, log:{ "YYYY-MM-DD": true } }.
+function loadPlants() {
   try {
-    return JSON.parse(localStorage.getItem(WATERING_KEY)) || {};
+    return (JSON.parse(localStorage.getItem(PLANTS_KEY)) || {}).plants || [];
   } catch {
-    return {};
+    return [];
   }
 }
 
-function saveWatering(map) {
-  localStorage.setItem(WATERING_KEY, JSON.stringify(map));
+function savePlants(plants) {
+  localStorage.setItem(PLANTS_KEY, JSON.stringify({ plants }));
 }
 
-function addWatering(dateStr) {
-  const map = loadWatering();
-  map[dateStr] = true;
-  saveWatering(map);
+function getPlant(id) {
+  return loadPlants().find((p) => p.id === id) || null;
 }
 
-function removeWatering(dateStr) {
-  const map = loadWatering();
-  delete map[dateStr];
-  saveWatering(map);
+function addPlant(name, emoji) {
+  const plants = loadPlants();
+  const plant = { id: crypto.randomUUID(), name, emoji, log: {} };
+  plants.push(plant);
+  savePlants(plants);
+  return plant.id;
 }
 
-function getWateringSorted() {
-  const map = loadWatering();
-  return Object.keys(map)
-    .sort()
-    .map((date) => ({ date }));
+function updatePlant(id, name, emoji) {
+  const plants = loadPlants();
+  const p = plants.find((x) => x.id === id);
+  if (!p) return;
+  p.name = name;
+  p.emoji = emoji;
+  savePlants(plants);
+}
+
+function deletePlant(id) {
+  savePlants(loadPlants().filter((p) => p.id !== id));
+}
+
+function addWatering(id, dateStr) {
+  const plants = loadPlants();
+  const p = plants.find((x) => x.id === id);
+  if (!p) return;
+  p.log[dateStr] = true;
+  savePlants(plants);
+}
+
+function removeWatering(id, dateStr) {
+  const plants = loadPlants();
+  const p = plants.find((x) => x.id === id);
+  if (!p) return;
+  delete p.log[dateStr];
+  savePlants(plants);
+}
+
+// Ascending [{date}] for a plant's log — feeds the shared chart/stat helpers.
+function getPlantLogSorted(id) {
+  const p = getPlant(id);
+  if (!p) return [];
+  return Object.keys(p.log).sort().map((date) => ({ date }));
 }
 
 function todayLocal() {

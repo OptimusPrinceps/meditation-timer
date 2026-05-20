@@ -8,8 +8,10 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { runWeightCoach } = require('./server/coach');
+const { fetchWeather } = require('./server/weather');
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const WEATHER_TTL_MS = 15 * 60 * 1000;
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -103,14 +105,55 @@ const server = http.createServer(async (req, res) => {
     }
     try {
       const existing = readStore();
-      // `coach` is server-authoritative — a client save must never clobber it.
-      const merged = { ...incoming, coach: existing.coach || {} };
+      // `coach` and `weather` are server-authoritative — a client save (which
+      // POSTs its whole STORE) must never clobber them.
+      const merged = {
+        ...incoming,
+        coach: existing.coach || {},
+        weather: existing.weather || incoming.weather || null,
+      };
       writeStore(merged);
     } catch {
       res.writeHead(500); return res.end('{"error":"write failed"}');
     }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end('{"ok":true}');
+  }
+
+  if (req.method === 'POST' && url === '/api/weather') {
+    const body = await readBody(req);
+    let coords;
+    try { coords = JSON.parse(body); } catch { res.writeHead(400); return res.end('{"error":"bad json"}'); }
+    const lat = Number(coords && coords.lat);
+    const lon = Number(coords && coords.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+      res.writeHead(400); return res.end('{"error":"lat/lon required"}');
+    }
+    // Cache key = coords rounded to ~1km so GPS jitter doesn't bust the cache.
+    const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+    const store = readStore();
+    const cached = store.weather;
+    const fresh = cached && cached.key === key && (Date.now() - cached.fetchedAt) < WEATHER_TTL_MS;
+    if (fresh) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ ...cached.data, fetchedAt: cached.fetchedAt, stale: false }));
+    }
+    try {
+      const data = await fetchWeather(lat, lon);
+      const entry = { key, fetchedAt: Date.now(), data };
+      store.weather = entry;
+      writeStore(store);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ ...data, fetchedAt: entry.fetchedAt, stale: false }));
+    } catch (e) {
+      // Offline / Open-Meteo error: serve the last cache (any age) if we have one.
+      if (cached && cached.data) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ ...cached.data, fetchedAt: cached.fetchedAt, stale: true }));
+      }
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: String(e.message || e) }));
+    }
   }
 
   if (req.method === 'POST' && url === '/api/coach/weight') {

@@ -16,6 +16,7 @@
     <button id="btn-tab-weight" type="button" class="tab">Weight</button>
     <button id="btn-tab-emissions" type="button" class="tab">Emissions</button>
     <button id="btn-tab-watering" type="button" class="tab">Watering</button>
+    <button id="btn-tab-weather" type="button" class="tab">Weather</button>
   </nav>
 
   <main id="home-view" class="view">
@@ -335,6 +336,31 @@
     </section>
   </main>
 
+  <main id="weather-view" class="view hidden">
+    <p id="weather-status" class="weather-status hidden"></p>
+
+    <div id="weather-hero" class="weather-hero hidden"></div>
+
+    <section id="weather-hourly-card" class="card weather-card hidden">
+      <div class="card-label">Hourly forecast</div>
+      <div id="weather-hourly" class="weather-hourly"></div>
+    </section>
+
+    <section id="weather-daily-card" class="card weather-card hidden">
+      <div class="card-label">10-day forecast</div>
+      <div id="weather-daily"></div>
+    </section>
+
+    <div id="weather-tiles" class="weather-tiles hidden"></div>
+
+    <div class="weather-footer">
+      <button id="btn-weather-refresh" type="button">Refresh</button>
+      <span id="weather-updated" class="rotation-status"></span>
+    </div>
+
+    <div class="weather-attrib">Weather data by Open-Meteo.com</div>
+  </main>
+
   <script src="src/storage.js"></script>
   <script src="src/audio.js"></script>
   <script src="src/schedule.js"></script>
@@ -346,6 +372,7 @@
   <script src="src/weight-ui.js"></script>
   <script src="src/emissions-ui.js"></script>
   <script src="src/watering-ui.js"></script>
+  <script src="src/weather-ui.js"></script>
   <script src="src/main.js"></script>
 </body>
 </html>

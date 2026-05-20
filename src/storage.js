@@ -35,6 +35,7 @@ function emptyStore() {
     emissions: {},
     plants: [],
     coach: {},
+    weather: null,
   };
 }
 
@@ -141,6 +142,14 @@ function setWeightGoal(goal) { STORE.weightGoal = goal; persist(); }
 
 // --- Coach (server-owned; read-only on the client) ---
 function getCoachReport(surface) { return (STORE.coach && STORE.coach[surface]) || null; }
+
+// --- Weather (server-owned cache; read-only on the client) ---
+// Returns the normalized weather payload plus fetchedAt, or null if uncached.
+function getCachedWeather() {
+  const w = STORE.weather;
+  if (!w || !w.data) return null;
+  return { ...w.data, fetchedAt: w.fetchedAt, stale: true };
+}
 
 // --- Emissions ---
 function loadEmissions() { return STORE.emissions || {}; }

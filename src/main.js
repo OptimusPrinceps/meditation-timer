@@ -27,6 +27,11 @@ els.btnTabWatering.addEventListener('click', () => {
   showWatering();
 });
 
+els.btnTabWeather.addEventListener('click', () => {
+  if (!els.sessionView.classList.contains('hidden')) return;
+  showWeather();
+});
+
 // --- Bootstrap ---
 
 (async function bootstrap() {

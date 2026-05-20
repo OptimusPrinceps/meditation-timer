@@ -14,6 +14,7 @@ const els = {
   weightView: $('weight-view'),
   emissionsView: $('emissions-view'),
   wateringView: $('watering-view'),
+  weatherView: $('weather-view'),
   // connection status
   serverBanner: $('server-banner'),
   // tab bar
@@ -22,6 +23,7 @@ const els = {
   btnTabWeight: $('btn-tab-weight'),
   btnTabEmissions: $('btn-tab-emissions'),
   btnTabWatering: $('btn-tab-watering'),
+  btnTabWeather: $('btn-tab-weather'),
   // weight
   weightDate: $('weight-date'),
   weightKg: $('weight-kg'),
@@ -77,6 +79,16 @@ const els = {
   wateringChart: $('watering-chart'),
   wateringEmpty: $('watering-empty'),
   wateringHistory: $('watering-history'),
+  // weather
+  weatherStatus: $('weather-status'),
+  weatherHero: $('weather-hero'),
+  weatherHourlyCard: $('weather-hourly-card'),
+  weatherHourly: $('weather-hourly'),
+  weatherDailyCard: $('weather-daily-card'),
+  weatherDaily: $('weather-daily'),
+  weatherTiles: $('weather-tiles'),
+  btnWeatherRefresh: $('btn-weather-refresh'),
+  weatherUpdated: $('weather-updated'),
   // home
   homeName: $('home-name'),
   homeTotal: $('home-total'),
@@ -132,6 +144,7 @@ function hideAllViews() {
   els.weightView.classList.add('hidden');
   els.emissionsView.classList.add('hidden');
   els.wateringView.classList.add('hidden');
+  els.weatherView.classList.add('hidden');
 }
 
 function setActiveTab(name) {
@@ -139,4 +152,5 @@ function setActiveTab(name) {
   els.btnTabWeight.classList.toggle('active', name === 'weight');
   els.btnTabEmissions.classList.toggle('active', name === 'emissions');
   els.btnTabWatering.classList.toggle('active', name === 'watering');
+  els.btnTabWeather.classList.toggle('active', name === 'weather');
 }

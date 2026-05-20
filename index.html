@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="server-banner" class="server-banner" role="alert" hidden>
+    ⚠️ Local server not running. Start it with <code>node server.js</code>, then reload.
+  </div>
+
   <nav id="tab-bar" class="tab-bar">
     <button id="btn-tab-timer" type="button" class="tab active">Timer</button>
     <button id="btn-tab-weight" type="button" class="tab">Weight</button>
@@ -327,6 +331,7 @@
   <script src="src/charts.js"></script>
   <script src="src/coach.js"></script>
   <script src="src/ui-core.js"></script>
+  <script src="src/connection.js"></script>
   <script src="src/timer-ui.js"></script>
   <script src="src/weight-ui.js"></script>
   <script src="src/emissions-ui.js"></script>

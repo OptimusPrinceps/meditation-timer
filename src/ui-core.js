@@ -14,6 +14,8 @@ const els = {
   weightView: $('weight-view'),
   emissionsView: $('emissions-view'),
   wateringView: $('watering-view'),
+  // connection status
+  serverBanner: $('server-banner'),
   // tab bar
   tabBar: $('tab-bar'),
   btnTabTimer: $('btn-tab-timer'),

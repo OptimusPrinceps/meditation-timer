@@ -48,8 +48,10 @@ async function fetchStore() {
     if (!res.ok) throw new Error(`store fetch failed: ${res.status}`);
     const data = await res.json();
     STORE = Object.assign(emptyStore(), data);
+    reportServerReachable(true);
   } catch {
     STORE = emptyStore(); // server unreachable — the app requires the server
+    reportServerReachable(false);
   }
   if (!STORE.meta || !STORE.meta.seeded) migrateFromLocalStorage();
 }
@@ -80,7 +82,9 @@ function persist() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(STORE),
-    }).catch(() => {});
+    })
+      .then((res) => reportServerReachable(res.ok))
+      .catch(() => reportServerReachable(false));
   }, 250);
 }
 

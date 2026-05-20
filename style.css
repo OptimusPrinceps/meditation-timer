@@ -29,6 +29,30 @@ main.view.hidden { display: none !important; }
 
 .hidden { display: none !important; }
 
+/* Server-unreachable banner */
+.server-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: block;
+  padding: 10px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--bg);
+  background: var(--danger);
+  border-bottom: 1px solid var(--border);
+}
+
+.server-banner[hidden] { display: none !important; }
+
+.server-banner code {
+  background: rgba(15, 17, 21, 0.18);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
 /* Tab bar */
 .tab-bar {
   position: sticky;

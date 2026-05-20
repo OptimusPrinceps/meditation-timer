@@ -41,6 +41,8 @@ function serveStatic(req, res) {
   if (rel === '/') rel = '/index.html';
   const filePath = path.join(ROOT, path.normalize(rel));
   if (!filePath.startsWith(ROOT)) { res.writeHead(403); return res.end('Forbidden'); }
+  // The store is reachable only through the API, never as a raw static file.
+  if (filePath.startsWith(DATA_DIR)) { res.writeHead(403); return res.end('Forbidden'); }
   fs.readFile(filePath, (err, buf) => {
     if (err) { res.writeHead(404); return res.end('Not found'); }
     res.writeHead(200, { 'Content-Type': MIME[path.extname(filePath)] || 'application/octet-stream' });
@@ -53,6 +55,7 @@ function readBody(req) {
     let data = '';
     req.on('data', (c) => { data += c; });
     req.on('end', () => resolve(data));
+    req.on('error', () => resolve(''));
   });
 }
 
@@ -68,10 +71,17 @@ const server = http.createServer(async (req, res) => {
     const body = await readBody(req);
     let incoming;
     try { incoming = JSON.parse(body); } catch { res.writeHead(400); return res.end('{"error":"bad json"}'); }
-    const existing = readStore();
-    // `coach` is server-authoritative — a client save must never clobber it.
-    const merged = { ...incoming, coach: existing.coach || {} };
-    writeStore(merged);
+    if (!incoming || typeof incoming !== 'object' || Array.isArray(incoming)) {
+      res.writeHead(400); return res.end('{"error":"store must be an object"}');
+    }
+    try {
+      const existing = readStore();
+      // `coach` is server-authoritative — a client save must never clobber it.
+      const merged = { ...incoming, coach: existing.coach || {} };
+      writeStore(merged);
+    } catch {
+      res.writeHead(500); return res.end('{"error":"write failed"}');
+    }
     res.writeHead(200, { 'Content-Type': 'application/json' });
     return res.end('{"ok":true}');
   }

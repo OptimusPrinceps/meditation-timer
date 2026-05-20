@@ -14,6 +14,7 @@ function showWeight() {
   els.weightDate.value = todayLocal();
   els.weightMessage.textContent = '';
   populateGoalForm();
+  els.coachStatus.textContent = '';
   renderCoachReport();
   refreshWeightView();
 }
@@ -38,8 +39,8 @@ function renderCoachReport(report) {
     els.coachRead.textContent = 'No weekly read yet — log at least two weights, then Refresh.';
     return;
   }
-  const when = new Date(r.generatedAt);
-  els.coachGenerated.textContent = `Generated ${when.toLocaleDateString()}`;
+  const when = r.generatedAt ? new Date(r.generatedAt) : null;
+  els.coachGenerated.textContent = when && !isNaN(when) ? `Generated ${when.toLocaleDateString()}` : '';
   els.coachRead.textContent = r.read || '';
   for (const action of r.actions || []) {
     const li = document.createElement('li');

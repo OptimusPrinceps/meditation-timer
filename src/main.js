@@ -29,7 +29,8 @@ els.btnTabWatering.addEventListener('click', () => {
 
 // --- Bootstrap ---
 
-(function bootstrap() {
+(async function bootstrap() {
+  await fetchStore();
   refreshConfigSelect();
   refreshRotationSelects();
   const configs = loadConfigs();
@@ -38,7 +39,6 @@ els.btnTabWatering.addEventListener('click', () => {
   const fallback = Object.keys(configs)[0] || null;
   const initial = suggestion || (last && configs[last] ? last : null) || fallback;
   setCurrentConfig(initial);
-  // Pre-populate the settings form with the current config (so opening Settings shows it).
   if (initial) loadConfigByName(initial);
   else writeForm({ delaySeconds: 30, warmupMinutes: 0, intervalCount: 4, intervalMinutes: 5, freeMinutes: 0 });
 

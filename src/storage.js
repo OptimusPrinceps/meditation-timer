@@ -1,21 +1,89 @@
 'use strict';
 
 // ============================================================================
-// Storage
+// Storage — an in-memory STORE is the runtime read cache; data/store.json (via
+// the local server) is the single source of truth. Boot calls fetchStore();
+// every mutation updates STORE and schedules a debounced POST /api/store.
 // ============================================================================
 
-const CONFIGS_KEY = 'meditationTimer.configs.v1';
-const LAST_KEY = 'meditationTimer.lastConfig.v1';
-const ROTATION_KEY = 'meditationTimer.rotation.v1';
-const WEIGHTS_KEY = 'meditationTimer.weights.v1';
-const EMISSIONS_KEY = 'meditationTimer.emissions.v1';
-const PLANTS_KEY = 'meditationTimer.plants.v1';
-const BELL_TIMING_KEY = 'meditationTimer.bellTiming.v1';
+const STORE_VERSION = 1;
 const BELL_GAP_MIN_SEC = 0.2;
 const BELL_GAP_MAX_SEC = 10;
 const DEFAULT_OPENING_GAP_SEC = 2.5;
 const DEFAULT_CLOSING_GAP_SEC = 0.5;
 
+// Legacy localStorage keys — read once on first boot for migration.
+const LEGACY = {
+  configs: 'meditationTimer.configs.v1',
+  lastConfig: 'meditationTimer.lastConfig.v1',
+  rotation: 'meditationTimer.rotation.v1',
+  weights: 'meditationTimer.weights.v1',
+  emissions: 'meditationTimer.emissions.v1',
+  plants: 'meditationTimer.plants.v1',
+  bellTiming: 'meditationTimer.bellTiming.v1',
+};
+
+function emptyStore() {
+  return {
+    meta: { version: STORE_VERSION, updatedAt: 0, seeded: false },
+    configs: {},
+    lastConfig: '',
+    rotation: null,
+    bellTiming: null,
+    weights: {},
+    weightGoal: null,
+    emissions: {},
+    plants: [],
+    coach: {},
+  };
+}
+
+let STORE = emptyStore();
+
+// --- Server sync ---
+
+async function fetchStore() {
+  try {
+    const res = await fetch('/api/store');
+    const data = await res.json();
+    STORE = Object.assign(emptyStore(), data);
+  } catch {
+    STORE = emptyStore(); // server unreachable — the app requires the server
+  }
+  if (!STORE.meta || !STORE.meta.seeded) migrateFromLocalStorage();
+}
+
+function migrateFromLocalStorage() {
+  const getJson = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } };
+  let migrated = false;
+  const c = getJson(LEGACY.configs); if (c) { STORE.configs = c; migrated = true; }
+  const last = localStorage.getItem(LEGACY.lastConfig); if (last) { STORE.lastConfig = last; migrated = true; }
+  const rot = getJson(LEGACY.rotation); if (rot) { STORE.rotation = rot; migrated = true; }
+  const w = getJson(LEGACY.weights); if (w) { STORE.weights = w; migrated = true; }
+  const em = getJson(LEGACY.emissions); if (em) { STORE.emissions = em; migrated = true; }
+  const pl = getJson(LEGACY.plants); if (pl && pl.plants) { STORE.plants = pl.plants; migrated = true; }
+  const bt = getJson(LEGACY.bellTiming); if (bt) { STORE.bellTiming = bt; migrated = true; }
+  STORE.meta = STORE.meta || { version: STORE_VERSION };
+  STORE.meta.seeded = true;
+  persist();
+  if (migrated) console.log('[storage] migrated existing localStorage data into the server store');
+}
+
+let persistTimer = null;
+function persist() {
+  STORE.meta.updatedAt = Date.now();
+  STORE.meta.version = STORE_VERSION;
+  clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    fetch('/api/store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(STORE),
+    }).catch(() => {});
+  }, 250);
+}
+
+// --- Bell timing ---
 function clampGapSeconds(v) {
   const n = Number(v);
   if (!Number.isFinite(n)) return DEFAULT_OPENING_GAP_SEC;
@@ -23,9 +91,7 @@ function clampGapSeconds(v) {
 }
 
 function loadBellTiming() {
-  let raw = null;
-  try { raw = JSON.parse(localStorage.getItem(BELL_TIMING_KEY)); } catch {}
-  const src = raw && typeof raw === 'object' ? raw : {};
+  const src = STORE.bellTiming && typeof STORE.bellTiming === 'object' ? STORE.bellTiming : {};
   return {
     openingGapSeconds: clampGapSeconds(src.openingGapSeconds ?? DEFAULT_OPENING_GAP_SEC),
     closingGapSeconds: clampGapSeconds(src.closingGapSeconds ?? DEFAULT_CLOSING_GAP_SEC),
@@ -37,184 +103,92 @@ function saveBellTiming(timing) {
     openingGapSeconds: clampGapSeconds(timing.openingGapSeconds),
     closingGapSeconds: clampGapSeconds(timing.closingGapSeconds),
   };
-  localStorage.setItem(BELL_TIMING_KEY, JSON.stringify(clean));
+  STORE.bellTiming = clean;
+  persist();
   return clean;
 }
 
-function loadConfigs() {
-  try {
-    return JSON.parse(localStorage.getItem(CONFIGS_KEY)) || {};
-  } catch {
-    return {};
-  }
-}
+// --- Configs ---
+function loadConfigs() { return STORE.configs || {}; }
+function saveConfigs(configs) { STORE.configs = configs; persist(); }
+function saveConfig(name, config) { STORE.configs[name] = config; persist(); }
+function deleteConfig(name) { delete STORE.configs[name]; persist(); }
+function getLastConfigName() { return STORE.lastConfig || ''; }
+function setLastConfigName(name) { STORE.lastConfig = name || ''; persist(); }
 
-function saveConfigs(configs) {
-  localStorage.setItem(CONFIGS_KEY, JSON.stringify(configs));
-}
+// --- Rotation ---
+function loadRotation() { return STORE.rotation || null; }
+function saveRotation(rot) { STORE.rotation = rot; persist(); }
+function clearRotation() { STORE.rotation = null; persist(); }
 
-function saveConfig(name, config) {
-  const configs = loadConfigs();
-  configs[name] = config;
-  saveConfigs(configs);
-}
-
-function deleteConfig(name) {
-  const configs = loadConfigs();
-  delete configs[name];
-  saveConfigs(configs);
-}
-
-function getLastConfigName() {
-  return localStorage.getItem(LAST_KEY) || '';
-}
-
-function setLastConfigName(name) {
-  if (name) localStorage.setItem(LAST_KEY, name);
-  else localStorage.removeItem(LAST_KEY);
-}
-
-function loadRotation() {
-  try {
-    return JSON.parse(localStorage.getItem(ROTATION_KEY)) || null;
-  } catch {
-    return null;
-  }
-}
-
-function saveRotation(rot) {
-  localStorage.setItem(ROTATION_KEY, JSON.stringify(rot));
-}
-
-function clearRotation() {
-  localStorage.removeItem(ROTATION_KEY);
-}
-
-function loadWeights() {
-  try {
-    return JSON.parse(localStorage.getItem(WEIGHTS_KEY)) || {};
-  } catch {
-    return {};
-  }
-}
-
-function saveWeights(map) {
-  localStorage.setItem(WEIGHTS_KEY, JSON.stringify(map));
-}
-
-function upsertWeight(dateStr, kg) {
-  const map = loadWeights();
-  map[dateStr] = kg;
-  saveWeights(map);
-}
-
+// --- Weights ---
+function loadWeights() { return STORE.weights || {}; }
+function saveWeights(map) { STORE.weights = map; persist(); }
+function upsertWeight(dateStr, kg) { STORE.weights[dateStr] = kg; persist(); }
 function getWeightsSorted() {
-  const map = loadWeights();
-  return Object.keys(map)
-    .sort()
-    .map((date) => ({ date, kg: map[date] }));
+  const map = STORE.weights || {};
+  return Object.keys(map).sort().map((date) => ({ date, kg: map[date] }));
 }
 
-// --- Emissions: a map { "YYYY-MM-DD": true }; presence = logged (per-day dedupe).
-function loadEmissions() {
-  try {
-    return JSON.parse(localStorage.getItem(EMISSIONS_KEY)) || {};
-  } catch {
-    return {};
-  }
-}
+// --- Weight goal ---
+function getWeightGoal() { return STORE.weightGoal || null; }
+function setWeightGoal(goal) { STORE.weightGoal = goal; persist(); }
 
-function saveEmissions(map) {
-  localStorage.setItem(EMISSIONS_KEY, JSON.stringify(map));
-}
+// --- Coach (server-owned; read-only on the client) ---
+function getCoachReport(surface) { return (STORE.coach && STORE.coach[surface]) || null; }
 
-function addEmission(dateStr) {
-  const map = loadEmissions();
-  map[dateStr] = true;
-  saveEmissions(map);
-}
-
-function removeEmission(dateStr) {
-  const map = loadEmissions();
-  delete map[dateStr];
-  saveEmissions(map);
-}
-
+// --- Emissions ---
+function loadEmissions() { return STORE.emissions || {}; }
+function saveEmissions(map) { STORE.emissions = map; persist(); }
+function addEmission(dateStr) { STORE.emissions[dateStr] = true; persist(); }
+function removeEmission(dateStr) { delete STORE.emissions[dateStr]; persist(); }
 function getEmissionsSorted() {
-  const map = loadEmissions();
-  return Object.keys(map)
-    .sort()
-    .map((date) => ({ date }));
+  const map = STORE.emissions || {};
+  return Object.keys(map).sort().map((date) => ({ date }));
 }
 
-// --- Plants: array of { id, name, emoji, log:{ "YYYY-MM-DD": true } }.
-function loadPlants() {
-  try {
-    return (JSON.parse(localStorage.getItem(PLANTS_KEY)) || {}).plants || [];
-  } catch {
-    return [];
-  }
-}
-
-function savePlants(plants) {
-  localStorage.setItem(PLANTS_KEY, JSON.stringify({ plants }));
-}
-
-function getPlant(id) {
-  return loadPlants().find((p) => p.id === id) || null;
-}
-
+// --- Plants ---
+function loadPlants() { return STORE.plants || []; }
+function savePlants(plants) { STORE.plants = plants; persist(); }
+function getPlant(id) { return loadPlants().find((p) => p.id === id) || null; }
 function addPlant(name, emoji) {
-  const plants = loadPlants();
   const plant = { id: crypto.randomUUID(), name, emoji, log: {} };
-  plants.push(plant);
-  savePlants(plants);
+  STORE.plants.push(plant);
+  persist();
   return plant.id;
 }
-
 function updatePlant(id, name, emoji) {
-  const plants = loadPlants();
-  const p = plants.find((x) => x.id === id);
+  const p = STORE.plants.find((x) => x.id === id);
   if (!p) return;
   p.name = name;
   p.emoji = emoji;
-  savePlants(plants);
+  persist();
 }
-
-function deletePlant(id) {
-  savePlants(loadPlants().filter((p) => p.id !== id));
-}
-
+function deletePlant(id) { STORE.plants = loadPlants().filter((p) => p.id !== id); persist(); }
 function addWatering(id, dateStr) {
-  const plants = loadPlants();
-  const p = plants.find((x) => x.id === id);
+  const p = STORE.plants.find((x) => x.id === id);
   if (!p) return;
   p.log[dateStr] = true;
-  savePlants(plants);
+  persist();
 }
-
 function removeWatering(id, dateStr) {
-  const plants = loadPlants();
-  const p = plants.find((x) => x.id === id);
+  const p = STORE.plants.find((x) => x.id === id);
   if (!p) return;
   delete p.log[dateStr];
-  savePlants(plants);
+  persist();
 }
-
-// Ascending [{date}] for a plant's log — feeds the shared chart/stat helpers.
 function getPlantLogSorted(id) {
   const p = getPlant(id);
   if (!p) return [];
   return Object.keys(p.log).sort().map((date) => ({ date }));
 }
 
+// --- Dates / rotation suggestion ---
 function todayLocal() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// Returns the name to suggest today, or null if no rotation is configured /
-// neither side resolves to a saved config.
 function getTodaysSuggestion() {
   const rot = loadRotation();
   if (!rot) return null;
@@ -224,7 +198,6 @@ function getTodaysSuggestion() {
   if (!aOk && !bOk) return null;
   if (aOk && !bOk) return rot.a;
   if (!aOk && bOk) return rot.b;
-  // Both sides exist. If they completed something today, keep it; otherwise alternate.
   if (rot.lastDoneDate === todayLocal() && (rot.lastDoneName === rot.a || rot.lastDoneName === rot.b)) {
     return rot.lastDoneName;
   }

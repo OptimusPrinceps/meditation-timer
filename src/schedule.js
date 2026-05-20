@@ -59,6 +59,23 @@ function buildSchedule(config, bellTiming) {
     });
   }
 
+  // Optional kegel section, appended at the very end. Each interval ends with a
+  // single bell; the last ends with the closing double bell.
+  const kegelN = config.kegelCount || 0;
+  const kegelDurMs = Math.round((config.kegelSeconds || 0) * 1000);
+  if (kegelN > 0 && kegelDurMs > 0) {
+    for (let i = 0; i < kegelN; i++) {
+      const isLast = i === kegelN - 1;
+      segments.push({
+        kind: 'kegel',
+        label: `Kegel ${i + 1} of ${kegelN}`,
+        durationMs: kegelDurMs,
+        bellsAfter: isLast ? 2 : 1,
+        ...(isLast ? { bellGapMs: closingGapMs } : {}),
+      });
+    }
+  }
+
   return segments;
 }
 
@@ -180,3 +197,7 @@ const Engine = {
     });
   },
 };
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { buildSchedule, totalIntervalsMs, minutesToMs };
+}

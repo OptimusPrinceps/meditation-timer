@@ -10,6 +10,7 @@
   <nav id="tab-bar" class="tab-bar">
     <button id="btn-tab-timer" type="button" class="tab active">Timer</button>
     <button id="btn-tab-weight" type="button" class="tab">Weight</button>
+    <button id="btn-tab-emissions" type="button" class="tab">Emissions</button>
   </nav>
 
   <main id="home-view" class="view">
@@ -177,6 +178,55 @@
     </section>
   </main>
 
-  <script src="app.js"></script>
+  <main id="emissions-view" class="view hidden">
+    <section class="card">
+      <button id="btn-emission-log-today" type="button" class="primary">Log today</button>
+      <div class="row">
+        <label for="emission-date">Backfill date</label>
+        <input id="emission-date" type="date" />
+        <button id="btn-emission-save" type="button">Save</button>
+      </div>
+      <p id="emission-message" class="message"></p>
+    </section>
+
+    <section class="card">
+      <div class="weight-stats">
+        <div class="stat">
+          <div class="stat-label">Days since last</div>
+          <div id="emission-days-since" class="stat-value">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Avg gap</div>
+          <div id="emission-avg-gap" class="stat-value">—</div>
+        </div>
+      </div>
+      <div class="range-row" role="group" aria-label="Time range">
+        <button type="button" class="range-btn" data-erange="30">30d</button>
+        <button type="button" class="range-btn active" data-erange="90">90d</button>
+        <button type="button" class="range-btn" data-erange="365">1y</button>
+        <button type="button" class="range-btn" data-erange="all">All</button>
+      </div>
+    </section>
+
+    <section class="card chart-card">
+      <svg id="emission-chart" class="weight-chart" viewBox="0 0 600 320" aria-label="Gap between emissions"></svg>
+      <p id="emission-empty" class="chart-empty">Log entries to see the gap chart.</p>
+    </section>
+
+    <section class="card">
+      <div class="stat-label">History</div>
+      <ul id="emission-history" class="history-list"></ul>
+    </section>
+  </main>
+
+  <script src="src/storage.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/schedule.js"></script>
+  <script src="src/charts.js"></script>
+  <script src="src/ui-core.js"></script>
+  <script src="src/timer-ui.js"></script>
+  <script src="src/weight-ui.js"></script>
+  <script src="src/emissions-ui.js"></script>
+  <script src="src/main.js"></script>
 </body>
 </html>

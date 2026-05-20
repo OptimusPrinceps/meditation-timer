@@ -471,3 +471,44 @@ button.weight-export {
   stroke-dasharray: 5 4;
   opacity: 0.6;
 }
+
+/* Emissions history list */
+.history-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.history-del {
+  background: none;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 8px;
+  line-height: 1;
+}
+
+.history-del:hover {
+  background: none;
+  color: var(--text);
+}
+
+.history-empty {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 8px 0;
+}

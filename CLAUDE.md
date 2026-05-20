@@ -85,7 +85,9 @@ staleness check (`server.js`) and on demand via a Refresh button.
 ## Conventions
 
 - Every JS file starts with `'use strict';` and a banner comment describing its role.
-- All persisted data lives in `localStorage` under versioned keys defined at the top of
-  `storage.js`. Bump the version suffix if a stored shape changes incompatibly.
+- All persisted data lives in `data/store.json`, served and owned by `server.js`.
+  `storage.js` mirrors it into an in-memory `STORE` (versioned via `meta.version`); bump
+  that version if a stored shape changes incompatibly. The old `localStorage` keys are
+  read only once, by the first-boot migration.
 - Design docs go in `docs/superpowers/specs/` and plans in `docs/superpowers/plans/`.
 - Working on and committing directly to main is expected.

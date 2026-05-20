@@ -32,13 +32,14 @@ hidden `<main>` views in `index.html`. View switching is just toggling the `hidd
 `index.html` is significant** because later files reference functions and the `els` object
 defined in earlier ones. The order is:
 
-1. `storage.js` — all `localStorage` read/write (keys are versioned, e.g. `meditationTimer.configs.v1`)
+1. `storage.js` — the in-memory `STORE` cache + `fetchStore()`/`persist()` sync to the server's `/api/store` (versioned via `meta.version`)
 2. `audio.js` — bell playback pool, bell scheduling, screen Wake Lock
 3. `schedule.js` — `buildSchedule()` (config → segment list) and the `Engine` timer object
 4. `charts.js` — pure math + SVG rendering shared by Weight and the gap-based trackers
-5. `ui-core.js` — the shared `els` DOM cache and `hideAllViews()`/`setActiveTab()`
-6. `timer-ui.js`, `weight-ui.js`, `emissions-ui.js`, `watering-ui.js` — per-tab UI + event wiring
-7. `main.js` — tab-bar wiring and the `bootstrap()` IIFE; loaded last so everything it calls exists
+5. `coach.js` — the `askCoach(surface)` client wrapper for `/api/coach/<surface>`
+6. `ui-core.js` — the shared `els` DOM cache and `hideAllViews()`/`setActiveTab()`
+7. `timer-ui.js`, `weight-ui.js`, `emissions-ui.js`, `watering-ui.js` — per-tab UI + event wiring
+8. `main.js` — tab-bar wiring and the `bootstrap()` IIFE; loaded last so everything it calls exists
 
 When adding DOM elements, register them in the `els` literal in `ui-core.js` and reference
 them as `els.someName` everywhere else.
@@ -60,7 +61,7 @@ staleness check (`server.js`) and on demand via a Refresh button.
 ### Timer subsystem (Timer tab)
 
 - A **config** is `{ delaySeconds, warmupMinutes, intervalCount, intervalMinutes, freeMinutes }`,
-  saved by name in `localStorage`.
+  saved by name in the store (`STORE.configs`).
 - `buildSchedule(config, bellTiming)` expands a config into an ordered list of segments
   (`delay` → optional `warmup` → N `interval`s → optional `free`), each carrying `durationMs`,
   `bellsAfter` (how many bell strikes), and an optional `bellGapMs`.

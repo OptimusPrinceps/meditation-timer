@@ -4,6 +4,7 @@
 // headless mode (Max subscription auth). Returns { generatedAt, read, actions }.
 // ============================================================================
 
+const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 const { computeWeightStats } = require('./stats');
@@ -14,18 +15,24 @@ const CLAUDE_BIN = process.env.CLAUDE_BIN || 'claude';
 
 // Run `claude -p` headless with our system prompt. Forces subscription auth by
 // removing ANTHROPIC_API_KEY from the child env (if set, it overrides the
-// CLAUDE_CODE_OAUTH_TOKEN and reverts to paid API billing).
+// CLAUDE_CODE_OAUTH_TOKEN and reverts to paid API billing). NOTE: do NOT pass
+// `--bare` — it makes auth strictly ANTHROPIC_API_KEY and never reads the OAuth
+// token, which would break subscription auth. `--system-prompt-file` already
+// replaces the default system prompt (so no CLAUDE.md bleed), `--tools ''`
+// disables all tools (pure inference, no tool-call overhead), and running from
+// a neutral cwd avoids discovering the project's own .claude config.
 function runClaude(promptText) {
   return new Promise((resolve, reject) => {
     const env = { ...process.env };
     delete env.ANTHROPIC_API_KEY;
     const args = [
-      '-p', '--bare',
+      '-p',
       '--system-prompt-file', PROMPT_PATH,
+      '--tools', '',
       '--output-format', 'json',
       promptText,
     ];
-    execFile(CLAUDE_BIN, args, { env, timeout: 120000, maxBuffer: 4 * 1024 * 1024 }, (err, stdout, stderr) => {
+    execFile(CLAUDE_BIN, args, { env, cwd: os.tmpdir(), timeout: 120000, maxBuffer: 4 * 1024 * 1024 }, (err, stdout, stderr) => {
       if (err) return reject(new Error(`claude CLI failed: ${stderr || err.message}`));
       resolve(stdout);
     });

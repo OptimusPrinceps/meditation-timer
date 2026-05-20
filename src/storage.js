@@ -45,6 +45,7 @@ let STORE = emptyStore();
 async function fetchStore() {
   try {
     const res = await fetch('/api/store');
+    if (!res.ok) throw new Error(`store fetch failed: ${res.status}`);
     const data = await res.json();
     STORE = Object.assign(emptyStore(), data);
   } catch {

@@ -41,7 +41,22 @@ const els = {
   emissionChart: $('emission-chart'),
   emissionEmpty: $('emission-empty'),
   emissionHistory: $('emission-history'),
-  // watering
+  // watering — dashboard
+  wateringDashboard: $('watering-dashboard'),
+  plantList: $('plant-list'),
+  btnAddPlant: $('btn-add-plant'),
+  plantForm: $('plant-form'),
+  plantName: $('plant-name'),
+  emojiPalette: $('emoji-palette'),
+  btnPlantSave: $('btn-plant-save'),
+  btnPlantCancel: $('btn-plant-cancel'),
+  plantFormMessage: $('plant-form-message'),
+  // watering — detail
+  wateringDetail: $('watering-detail'),
+  btnWateringBack: $('btn-watering-back'),
+  btnPlantRename: $('btn-plant-rename'),
+  btnPlantDelete: $('btn-plant-delete'),
+  wateringTitle: $('watering-title'),
   wateringDate: $('watering-date'),
   btnWateringLogToday: $('btn-watering-log-today'),
   btnWateringSave: $('btn-watering-save'),

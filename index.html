@@ -192,6 +192,15 @@
       <svg id="weight-chart" class="weight-chart" viewBox="0 0 600 320" aria-label="Weight over time"></svg>
       <p id="weight-empty" class="chart-empty">Log a weight to see your chart.</p>
     </section>
+
+    <section class="card">
+      <div class="stat-label">Weekly coach</div>
+      <p id="coach-generated" class="rotation-status"></p>
+      <p id="coach-read" class="message"></p>
+      <ul id="coach-actions" class="history-list"></ul>
+      <button id="btn-coach-refresh" type="button">Refresh</button>
+      <span id="coach-status" class="rotation-status"></span>
+    </section>
   </main>
 
   <main id="emissions-view" class="view hidden">
@@ -316,6 +325,7 @@
   <script src="src/audio.js"></script>
   <script src="src/schedule.js"></script>
   <script src="src/charts.js"></script>
+  <script src="src/coach.js"></script>
   <script src="src/ui-core.js"></script>
   <script src="src/timer-ui.js"></script>
   <script src="src/weight-ui.js"></script>

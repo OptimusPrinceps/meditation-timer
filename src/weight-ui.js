@@ -14,6 +14,7 @@ function showWeight() {
   els.weightDate.value = todayLocal();
   els.weightMessage.textContent = '';
   populateGoalForm();
+  renderCoachReport();
   refreshWeightView();
 }
 
@@ -27,6 +28,24 @@ function populateGoalForm() {
   els.goalKg.value = goal && goal.targetKg ? goal.targetKg : '';
   els.goalDate.value = goal && goal.targetDate ? goal.targetDate : '';
   els.goalStatus.textContent = goal ? '' : 'No goal set';
+}
+
+function renderCoachReport(report) {
+  const r = report || getCoachReport('weight');
+  while (els.coachActions.firstChild) els.coachActions.removeChild(els.coachActions.firstChild);
+  if (!r) {
+    els.coachGenerated.textContent = '';
+    els.coachRead.textContent = 'No weekly read yet — log at least two weights, then Refresh.';
+    return;
+  }
+  const when = new Date(r.generatedAt);
+  els.coachGenerated.textContent = `Generated ${when.toLocaleDateString()}`;
+  els.coachRead.textContent = r.read || '';
+  for (const action of r.actions || []) {
+    const li = document.createElement('li');
+    li.textContent = action;
+    els.coachActions.appendChild(li);
+  }
 }
 
 function refreshWeightView() {
@@ -100,4 +119,18 @@ els.btnGoalSave.addEventListener('click', () => {
   }
   setWeightGoal({ targetKg: Math.round(targetKg * 10) / 10, targetDate: targetDate || null });
   els.goalStatus.textContent = 'Goal saved.';
+});
+
+els.btnCoachRefresh.addEventListener('click', async () => {
+  els.coachStatus.textContent = 'Thinking…';
+  els.btnCoachRefresh.disabled = true;
+  try {
+    const report = await askCoach('weight');
+    renderCoachReport(report);
+    els.coachStatus.textContent = '';
+  } catch (e) {
+    els.coachStatus.textContent = `Couldn't refresh: ${e.message}`;
+  } finally {
+    els.btnCoachRefresh.disabled = false;
+  }
 });

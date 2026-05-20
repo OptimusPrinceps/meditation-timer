@@ -35,6 +35,11 @@ const els = {
   goalDate: $('goal-date'),
   btnGoalSave: $('btn-goal-save'),
   goalStatus: $('goal-status'),
+  coachGenerated: $('coach-generated'),
+  coachRead: $('coach-read'),
+  coachActions: $('coach-actions'),
+  btnCoachRefresh: $('btn-coach-refresh'),
+  coachStatus: $('coach-status'),
   // emissions
   emissionDate: $('emission-date'),
   btnEmissionLogToday: $('btn-emission-log-today'),

@@ -22,6 +22,11 @@ els.btnTabEmissions.addEventListener('click', () => {
   showEmissions();
 });
 
+els.btnTabWatering.addEventListener('click', () => {
+  if (!els.sessionView.classList.contains('hidden')) return;
+  showWatering();
+});
+
 // --- Bootstrap ---
 
 (function bootstrap() {

@@ -9,6 +9,7 @@ const LAST_KEY = 'meditationTimer.lastConfig.v1';
 const ROTATION_KEY = 'meditationTimer.rotation.v1';
 const WEIGHTS_KEY = 'meditationTimer.weights.v1';
 const EMISSIONS_KEY = 'meditationTimer.emissions.v1';
+const WATERING_KEY = 'meditationTimer.watering.v1';
 const BELL_TIMING_KEY = 'meditationTimer.bellTiming.v1';
 const BELL_GAP_MIN_SEC = 0.2;
 const BELL_GAP_MAX_SEC = 10;
@@ -141,6 +142,38 @@ function removeEmission(dateStr) {
 
 function getEmissionsSorted() {
   const map = loadEmissions();
+  return Object.keys(map)
+    .sort()
+    .map((date) => ({ date }));
+}
+
+// --- Watering: a map { "YYYY-MM-DD": true }; presence = watered (per-day dedupe).
+function loadWatering() {
+  try {
+    return JSON.parse(localStorage.getItem(WATERING_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveWatering(map) {
+  localStorage.setItem(WATERING_KEY, JSON.stringify(map));
+}
+
+function addWatering(dateStr) {
+  const map = loadWatering();
+  map[dateStr] = true;
+  saveWatering(map);
+}
+
+function removeWatering(dateStr) {
+  const map = loadWatering();
+  delete map[dateStr];
+  saveWatering(map);
+}
+
+function getWateringSorted() {
+  const map = loadWatering();
   return Object.keys(map)
     .sort()
     .map((date) => ({ date }));

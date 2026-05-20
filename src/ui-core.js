@@ -13,11 +13,13 @@ const els = {
   sessionView: $('session-view'),
   weightView: $('weight-view'),
   emissionsView: $('emissions-view'),
+  wateringView: $('watering-view'),
   // tab bar
   tabBar: $('tab-bar'),
   btnTabTimer: $('btn-tab-timer'),
   btnTabWeight: $('btn-tab-weight'),
   btnTabEmissions: $('btn-tab-emissions'),
+  btnTabWatering: $('btn-tab-watering'),
   // weight
   weightDate: $('weight-date'),
   weightKg: $('weight-kg'),
@@ -39,6 +41,16 @@ const els = {
   emissionChart: $('emission-chart'),
   emissionEmpty: $('emission-empty'),
   emissionHistory: $('emission-history'),
+  // watering
+  wateringDate: $('watering-date'),
+  btnWateringLogToday: $('btn-watering-log-today'),
+  btnWateringSave: $('btn-watering-save'),
+  wateringMessage: $('watering-message'),
+  wateringDaysSince: $('watering-days-since'),
+  wateringAvgGap: $('watering-avg-gap'),
+  wateringChart: $('watering-chart'),
+  wateringEmpty: $('watering-empty'),
+  wateringHistory: $('watering-history'),
   // home
   homeName: $('home-name'),
   homeTotal: $('home-total'),
@@ -81,8 +93,9 @@ const els = {
   btnBack: $('btn-back'),
 };
 
-// Scoped after the literal so it can reference els.emissionsView.
+// Scoped after the literal so they can reference the cached views.
 els.emissionRangeBtns = els.emissionsView.querySelectorAll('.range-btn');
+els.wateringRangeBtns = els.wateringView.querySelectorAll('.range-btn');
 
 function hideAllViews() {
   els.homeView.classList.add('hidden');
@@ -90,10 +103,12 @@ function hideAllViews() {
   els.sessionView.classList.add('hidden');
   els.weightView.classList.add('hidden');
   els.emissionsView.classList.add('hidden');
+  els.wateringView.classList.add('hidden');
 }
 
 function setActiveTab(name) {
   els.btnTabTimer.classList.toggle('active', name === 'timer');
   els.btnTabWeight.classList.toggle('active', name === 'weight');
   els.btnTabEmissions.classList.toggle('active', name === 'emissions');
+  els.btnTabWatering.classList.toggle('active', name === 'watering');
 }

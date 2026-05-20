@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": 1,
-    "updatedAt": 1779290444893,
+    "updatedAt": 1779293276161,
     "seeded": true
   },
   "configs": {
@@ -10,20 +10,18 @@
       "warmupMinutes": 9,
       "intervalCount": 5,
       "intervalMinutes": 4,
-      "freeMinutes": 2
+      "freeMinutes": 2,
+      "kegelCount": 20,
+      "kegelSeconds": 8
     },
     "Breath": {
       "delaySeconds": 300,
       "warmupMinutes": 9,
       "intervalCount": 4,
       "intervalMinutes": 5,
-      "freeMinutes": 2
-    },
-    "Gratitude": {
-      "delaySeconds": 0,
-      "intervalCount": 1,
-      "intervalMinutes": 9,
-      "freeMinutes": 0
+      "freeMinutes": 2,
+      "kegelCount": 20,
+      "kegelSeconds": 8
     }
   },
   "lastConfig": "Breath",
@@ -54,7 +52,7 @@
     "2026-05-20": 82.8
   },
   "weightGoal": {
-    "targetKg": 78,
+    "targetKg": 79,
     "targetDate": "2026-07-30"
   },
   "emissions": {
@@ -72,12 +70,13 @@
   ],
   "coach": {
     "weight": {
-      "generatedAt": 1779290494793,
-      "read": "Fourteen weigh-ins over fourteen days is good coverage, so the trend is readable. The 7-day average sits at 82.4 kg and the regression slope is -0.2 kg/week — a genuine, small loss, not noise. The problem is pace: reaching 78 kg by July 30 requires ~0.47 kg/week over the 10.3 weeks remaining, roughly 2.4× your current rate. At -0.2 kg/week you arrive at 78 kg around mid-October, not July 30.",
+      "generatedAt": 1779290931586,
+      "read": "Two weeks of near-daily logging gives a real but early trend of −0.2 kg/week; the daily swings of up to 1.5 kg are normal noise, and the 7-day average of 82.4 kg is the only number worth tracking. At this pace you'd arrive at roughly 80.4 kg by July 30 — about 1.4 kg short of the 79 kg target. Closing that gap requires approximately 0.35 kg/week, which is within a healthy rate but means roughly doubling the current deficit.",
       "actions": [
-        "Log everything you eat for three consecutive days this week — not to judge the food, but to locate a specific 200–250 kcal/day reduction (one less high-calorie drink, a smaller portion at one meal); that exact cut is what gets you from -0.2 to ~0.47 kg/week without going below a healthy deficit.",
-        "If the food log reveals no clean 200–250 kcal lever without significant disruption, move the target date to mid-October rather than forcing a larger deficit — the current rate is real progress and mid-October is an honest, healthy timeline."
+        "Log food intake for 5 of the next 7 days — rough estimates are fine — specifically to locate a 150–200 kcal/day reduction you can sustain; that is the precise gap between your current pace and the ~0.35 kg/week needed to reach 79 kg by July 30.",
+        "Anchor a 30g-protein breakfast each morning this week to reduce compensatory hunger later in the day as you tighten the deficit."
       ]
     }
-  }
+  },
+  "weather": null
 }

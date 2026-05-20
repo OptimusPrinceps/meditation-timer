@@ -7,6 +7,9 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { runWeightCoach } = require('./server/coach');
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 const ROOT = __dirname;
 const DATA_DIR = path.join(ROOT, 'data');
@@ -86,9 +89,43 @@ const server = http.createServer(async (req, res) => {
     return res.end('{"ok":true}');
   }
 
+  if (req.method === 'POST' && url === '/api/coach/weight') {
+    try {
+      const store = readStore();
+      const report = await runWeightCoach(store);
+      store.coach = store.coach || {};
+      store.coach.weight = report;
+      writeStore(store);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify(report));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: String(e.message || e) }));
+    }
+  }
+
   return serveStatic(req, res);
 });
 
+// --- Weekly staleness scheduler: regenerate if the report is missing or >7d old ---
+async function maybeRunWeekly() {
+  try {
+    const store = readStore();
+    if (Object.keys(store.weights || {}).length < 2) return;
+    const last = store.coach && store.coach.weight ? store.coach.weight.generatedAt : 0;
+    if (Date.now() - (last || 0) < WEEK_MS) return;
+    const report = await runWeightCoach(store);
+    store.coach = store.coach || {};
+    store.coach.weight = report;
+    writeStore(store);
+    console.log('[coach] weekly weight report regenerated');
+  } catch (e) {
+    console.error('[coach] weekly run failed:', e.message);
+  }
+}
+
 server.listen(PORT, () => {
   console.log(`Meditation app on http://localhost:${PORT}`);
+  maybeRunWeekly();
+  setInterval(maybeRunWeekly, 60 * 60 * 1000); // hourly
 });

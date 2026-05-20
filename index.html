@@ -227,22 +227,6 @@
         <ul id="plant-list" class="history-list"></ul>
         <button id="btn-add-plant" type="button" class="primary">+ Add plant</button>
       </section>
-
-      <section id="plant-form" class="card hidden">
-        <div class="row">
-          <label for="plant-name">Name</label>
-          <input id="plant-name" type="text" placeholder="e.g. Bonsai" />
-        </div>
-        <div class="row">
-          <label>Icon</label>
-          <div id="emoji-palette" class="range-row" role="group" aria-label="Plant icon"></div>
-        </div>
-        <div class="row">
-          <button id="btn-plant-save" type="button">Save</button>
-          <button id="btn-plant-cancel" type="button">Cancel</button>
-        </div>
-        <p id="plant-form-message" class="message"></p>
-      </section>
     </div>
 
     <!-- Detail (per-plant) -->
@@ -295,6 +279,22 @@
         <ul id="watering-history" class="history-list"></ul>
       </section>
     </div>
+
+    <section id="plant-form" class="card hidden">
+      <div class="row">
+        <label for="plant-name">Name</label>
+        <input id="plant-name" type="text" placeholder="e.g. Bonsai" />
+      </div>
+      <div class="row">
+        <label>Icon</label>
+        <div id="emoji-palette" class="range-row" role="group" aria-label="Plant icon"></div>
+      </div>
+      <div class="row">
+        <button id="btn-plant-save" type="button">Save</button>
+        <button id="btn-plant-cancel" type="button">Cancel</button>
+      </div>
+      <p id="plant-form-message" class="message"></p>
+    </section>
   </main>
 
   <script src="src/storage.js"></script>

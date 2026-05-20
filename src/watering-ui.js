@@ -32,6 +32,7 @@ function showDashboard() {
 
 function openDetail(id) {
   currentPlantId = id;
+  hidePlantForm();
   els.wateringDashboard.classList.add('hidden');
   els.wateringDetail.classList.remove('hidden');
   els.wateringDate.value = todayLocal();

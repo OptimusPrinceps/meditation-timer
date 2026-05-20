@@ -221,44 +221,80 @@
   </main>
 
   <main id="watering-view" class="view hidden">
-    <section class="card">
-      <button id="btn-watering-log-today" type="button" class="primary">Log today</button>
-      <div class="row">
-        <label for="watering-date">Backfill date</label>
-        <input id="watering-date" type="date" />
-        <button id="btn-watering-save" type="button">Save</button>
-      </div>
-      <p id="watering-message" class="message"></p>
-    </section>
+    <!-- Dashboard -->
+    <div id="watering-dashboard">
+      <section class="card">
+        <ul id="plant-list" class="history-list"></ul>
+        <button id="btn-add-plant" type="button" class="primary">+ Add plant</button>
+      </section>
 
-    <section class="card">
-      <div class="weight-stats">
-        <div class="stat">
-          <div class="stat-label">Days since last</div>
-          <div id="watering-days-since" class="stat-value">—</div>
+      <section id="plant-form" class="card hidden">
+        <div class="row">
+          <label for="plant-name">Name</label>
+          <input id="plant-name" type="text" placeholder="e.g. Bonsai" />
         </div>
-        <div class="stat">
-          <div class="stat-label">Avg gap</div>
-          <div id="watering-avg-gap" class="stat-value">—</div>
+        <div class="row">
+          <label>Icon</label>
+          <div id="emoji-palette" class="range-row" role="group" aria-label="Plant icon"></div>
         </div>
-      </div>
-      <div class="range-row" role="group" aria-label="Time range">
-        <button type="button" class="range-btn" data-wrange="30">30d</button>
-        <button type="button" class="range-btn active" data-wrange="90">90d</button>
-        <button type="button" class="range-btn" data-wrange="365">1y</button>
-        <button type="button" class="range-btn" data-wrange="all">All</button>
-      </div>
-    </section>
+        <div class="row">
+          <button id="btn-plant-save" type="button">Save</button>
+          <button id="btn-plant-cancel" type="button">Cancel</button>
+        </div>
+        <p id="plant-form-message" class="message"></p>
+      </section>
+    </div>
 
-    <section class="card chart-card">
-      <svg id="watering-chart" class="weight-chart" viewBox="0 0 600 320" aria-label="Gap between waterings"></svg>
-      <p id="watering-empty" class="chart-empty">Log entries to see the gap chart.</p>
-    </section>
+    <!-- Detail (per-plant) -->
+    <div id="watering-detail" class="hidden">
+      <section class="card">
+        <div class="row">
+          <button id="btn-watering-back" type="button">← Back</button>
+          <button id="btn-plant-rename" type="button">Rename</button>
+          <button id="btn-plant-delete" type="button">Delete</button>
+        </div>
+        <div id="watering-title" class="home-name">—</div>
+      </section>
 
-    <section class="card">
-      <div class="stat-label">History</div>
-      <ul id="watering-history" class="history-list"></ul>
-    </section>
+      <section class="card">
+        <button id="btn-watering-log-today" type="button" class="primary">Log today</button>
+        <div class="row">
+          <label for="watering-date">Backfill date</label>
+          <input id="watering-date" type="date" />
+          <button id="btn-watering-save" type="button">Save</button>
+        </div>
+        <p id="watering-message" class="message"></p>
+      </section>
+
+      <section class="card">
+        <div class="weight-stats">
+          <div class="stat">
+            <div class="stat-label">Days since last</div>
+            <div id="watering-days-since" class="stat-value">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Avg gap</div>
+            <div id="watering-avg-gap" class="stat-value">—</div>
+          </div>
+        </div>
+        <div class="range-row" role="group" aria-label="Time range">
+          <button type="button" class="range-btn" data-wrange="30">30d</button>
+          <button type="button" class="range-btn active" data-wrange="90">90d</button>
+          <button type="button" class="range-btn" data-wrange="365">1y</button>
+          <button type="button" class="range-btn" data-wrange="all">All</button>
+        </div>
+      </section>
+
+      <section class="card chart-card">
+        <svg id="watering-chart" class="weight-chart" viewBox="0 0 600 320" aria-label="Gap between waterings"></svg>
+        <p id="watering-empty" class="chart-empty">Log entries to see the gap chart.</p>
+      </section>
+
+      <section class="card">
+        <div class="stat-label">History</div>
+        <ul id="watering-history" class="history-list"></ul>
+      </section>
+    </div>
   </main>
 
   <script src="src/storage.js"></script>

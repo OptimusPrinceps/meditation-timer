@@ -31,6 +31,10 @@ const els = {
   weightChart: $('weight-chart'),
   weightEmpty: $('weight-empty'),
   rangeBtns: document.querySelectorAll('#weight-view .range-btn'),
+  goalKg: $('goal-kg'),
+  goalDate: $('goal-date'),
+  btnGoalSave: $('btn-goal-save'),
+  goalStatus: $('goal-status'),
   // emissions
   emissionDate: $('emission-date'),
   btnEmissionLogToday: $('btn-emission-log-today'),

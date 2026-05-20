@@ -13,12 +13,20 @@ function showWeight() {
   els.weightView.classList.remove('hidden');
   els.weightDate.value = todayLocal();
   els.weightMessage.textContent = '';
+  populateGoalForm();
   refreshWeightView();
 }
 
 function setWeightMessage(text, isError = true) {
   els.weightMessage.textContent = text;
   els.weightMessage.style.color = isError ? 'var(--danger)' : 'var(--muted)';
+}
+
+function populateGoalForm() {
+  const goal = getWeightGoal();
+  els.goalKg.value = goal && goal.targetKg ? goal.targetKg : '';
+  els.goalDate.value = goal && goal.targetDate ? goal.targetDate : '';
+  els.goalStatus.textContent = goal ? '' : 'No goal set';
 }
 
 function refreshWeightView() {
@@ -82,3 +90,14 @@ for (const btn of els.rangeBtns) {
     refreshWeightView();
   });
 }
+
+els.btnGoalSave.addEventListener('click', () => {
+  const targetKg = parseFloat(els.goalKg.value);
+  const targetDate = els.goalDate.value;
+  if (!Number.isFinite(targetKg) || targetKg <= 0) {
+    els.goalStatus.textContent = 'Enter a goal weight.';
+    return;
+  }
+  setWeightGoal({ targetKg: Math.round(targetKg * 10) / 10, targetDate: targetDate || null });
+  els.goalStatus.textContent = 'Goal saved.';
+});

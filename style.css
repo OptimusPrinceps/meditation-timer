@@ -27,6 +27,8 @@ main.view {
 
 main.view.hidden { display: none !important; }
 
+.hidden { display: none !important; }
+
 /* Tab bar */
 .tab-bar {
   position: sticky;

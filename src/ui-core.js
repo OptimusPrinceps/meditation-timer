@@ -101,6 +101,8 @@ const els = {
   intervalCount: $('interval-count'),
   intervalMinutes: $('interval-minutes'),
   freeMinutes: $('free-minutes'),
+  kegelCount: $('kegel-count'),
+  kegelSeconds: $('kegel-seconds'),
   btnSave: $('btn-save'),
   openingGapSec: $('opening-gap-sec'),
   closingGapSec: $('closing-gap-sec'),

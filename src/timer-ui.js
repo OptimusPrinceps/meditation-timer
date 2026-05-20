@@ -14,6 +14,8 @@ function readForm() {
     intervalCount: Math.max(1, parseInt(els.intervalCount.value, 10) || 1),
     intervalMinutes: Math.max(0.5, parseFloat(els.intervalMinutes.value) || 0.5),
     freeMinutes: Math.max(0, parseFloat(els.freeMinutes.value) || 0),
+    kegelCount: Math.max(0, parseInt(els.kegelCount.value, 10) || 0),
+    kegelSeconds: Math.max(0, parseInt(els.kegelSeconds.value, 10) || 0),
   };
 }
 
@@ -23,6 +25,8 @@ function writeForm(config) {
   els.intervalCount.value = config.intervalCount;
   els.intervalMinutes.value = config.intervalMinutes;
   els.freeMinutes.value = config.freeMinutes;
+  els.kegelCount.value = config.kegelCount || 0;
+  els.kegelSeconds.value = config.kegelSeconds || 0;
   updateTotal();
 }
 
@@ -37,15 +41,17 @@ function updateTotal() {
   const c = readForm();
   const intervalsMs = totalIntervalsMs(c);
   const freeMs = minutesToMs(c.freeMinutes);
+  const kegelMs = (c.kegelCount || 0) * (c.kegelSeconds || 0) * 1000;
   const warmupMs = minutesToMs(c.warmupMinutes || 0);
   const delayMs = c.delaySeconds * 1000;
-  const totalMs = delayMs + warmupMs + intervalsMs + freeMs;
+  const totalMs = delayMs + warmupMs + intervalsMs + freeMs + kegelMs;
   els.totalDisplay.textContent = formatMmSs(totalMs);
   const parts = [];
   if (delayMs > 0) parts.push(`Delay ${formatMmSs(delayMs)}`);
   if (warmupMs > 0) parts.push(`Warmup ${formatMmSs(warmupMs)}`);
   parts.push(`Intervals ${formatMmSs(intervalsMs)}`);
   parts.push(`Free ${formatMmSs(freeMs)}`);
+  if (kegelMs > 0) parts.push(`Kegel ${formatMmSs(kegelMs)}`);
   els.totalBreakdown.textContent = parts.join(' · ');
 }
 
@@ -196,12 +202,14 @@ function refreshHome() {
   els.homeName.textContent = currentConfigName;
   const intervalsMs = totalIntervalsMs(config);
   const freeMs = minutesToMs(config.freeMinutes);
+  const kegelMs = (config.kegelCount || 0) * (config.kegelSeconds || 0) * 1000;
   const warmupMs = minutesToMs(config.warmupMinutes || 0);
   const delayMs = config.delaySeconds * 1000;
-  els.homeTotal.textContent = formatMmSs(delayMs + warmupMs + intervalsMs + freeMs);
+  els.homeTotal.textContent = formatMmSs(delayMs + warmupMs + intervalsMs + freeMs + kegelMs);
   const parts = [`${config.intervalCount} × ${config.intervalMinutes} min`];
   if (config.warmupMinutes > 0) parts.push(`Warmup ${config.warmupMinutes} min`);
   if (config.freeMinutes > 0) parts.push(`Free ${config.freeMinutes} min`);
+  if (config.kegelCount > 0 && config.kegelSeconds > 0) parts.push(`Kegel ${config.kegelCount} × ${config.kegelSeconds}s`);
   if (config.delaySeconds > 0) parts.push(`Delay ${config.delaySeconds}s`);
   els.homeBreakdown.textContent = parts.join(' · ');
 
@@ -363,7 +371,7 @@ els.btnSaveBells.addEventListener('click', () => {
   setTimeout(() => { els.bellsStatus.textContent = ''; }, 2000);
 });
 
-for (const el of [els.delaySeconds, els.warmupMinutes, els.intervalCount, els.intervalMinutes, els.freeMinutes]) {
+for (const el of [els.delaySeconds, els.warmupMinutes, els.intervalCount, els.intervalMinutes, els.freeMinutes, els.kegelCount, els.kegelSeconds]) {
   el.addEventListener('input', updateTotal);
 }
 

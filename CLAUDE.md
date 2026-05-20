@@ -4,17 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Running the app
 
-There is no build step, package manager, server, or test framework. The app runs
-directly from the filesystem — open `index.html` by double-clicking it (it loads over
-the `file://` protocol). All source is plain ES5/ES2017 JavaScript loaded via classic
-`<script>` tags.
+The app requires a small local server. Start it with `node server.js` and open
+`http://localhost:8787`. The server (zero npm dependencies — built-in Node modules
+only) serves the static files, owns `data/store.json` (the single source of truth —
+see Architecture), and proxies weight coaching to the `claude` CLI. There is a unit
+test for the stats math: `node --test`.
 
-**Do not introduce ES modules, `import`/`export`, bundlers, or npm dependencies.** The
-`file://` protocol blocks module loading, so everything relies on classic scripts and a
-shared global scope.
+`bell.mp3` must sit next to `index.html` for the timer audio to work (the app probes
+for `bell.mp3` then `bell.wav`).
 
-`bell.mp3` must sit next to `index.html` for the timer audio to work (the app probes for
-`bell.mp3` then `bell.wav`).
+**Coaching auth:** run `claude setup-token` once and set `CLAUDE_CODE_OAUTH_TOKEN` in
+the environment that launches the server. Ensure `ANTHROPIC_API_KEY` is NOT set, or it
+takes precedence and reverts to paid API billing instead of the Max subscription.
+
+**Browser code stays dependency-free:** classic `<script>` tags, shared global scope,
+no ES modules/`import`/`export`/bundlers. Server files (`server.js`, `server/*.js`) are
+plain Node CommonJS.
 
 ## Architecture
 
@@ -37,6 +42,20 @@ defined in earlier ones. The order is:
 
 When adding DOM elements, register them in the `els` literal in `ui-core.js` and reference
 them as `els.someName` everywhere else.
+
+### Persistence & the coach (server)
+
+`storage.js` keeps an in-memory `STORE` as a read cache; `data/store.json` (owned by
+`server.js`) is the single source of truth. Boot calls `fetchStore()`; every mutation
+updates `STORE` and debounce-POSTs it to `/api/store`. The `coach` section is
+server-authoritative — `POST /api/store` preserves it so a client save can't clobber a
+report. On first boot the client migrates any legacy `localStorage` keys into the store.
+
+Coaching surfaces follow one contract: a `prompts/<surface>.md` system prompt, a
+`POST /api/coach/<surface>` endpoint that reads the store + computes stats + calls
+`claude -p`, a `{ read, actions }` response stored under `coach.<surface>`, and a report
+slot on the tab. Weight is the first surface; it regenerates weekly via an in-process
+staleness check (`server.js`) and on demand via a Refresh button.
 
 ### Timer subsystem (Timer tab)
 

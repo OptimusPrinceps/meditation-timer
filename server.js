@@ -37,7 +37,7 @@ function loadEnvFile() {
 }
 loadEnvFile();
 
-const PORT = process.env.PORT || 8787;
+const PORT = process.env.PORT || 369;
 const EMPTY_STORE = { meta: { version: 1, updatedAt: 0, seeded: false } };
 
 function readStore() {

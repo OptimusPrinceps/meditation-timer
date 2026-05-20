@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Running the app
 
 The app requires a small local server. Start it with `node server.js` and open
-`http://localhost:8787`. The server (zero npm dependencies — built-in Node modules
+`http://localhost:369`. The server (zero npm dependencies — built-in Node modules
 only) serves the static files, owns `data/store.json` (the single source of truth —
 see Architecture), and proxies weight coaching to the `claude` CLI. There is a unit
 test for the stats math: `node --test`.

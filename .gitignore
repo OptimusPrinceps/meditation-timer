@@ -2,3 +2,4 @@
 docs/superpowers/
 data/
 .env
+*.swp

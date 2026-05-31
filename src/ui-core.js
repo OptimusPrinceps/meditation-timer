@@ -33,6 +33,7 @@ const els = {
   btnWeightExport: $('btn-weight-export'),
   weightMessage: $('weight-message'),
   weightWeekly: $('weight-weekly'),
+  weightWeeklyRecent: $('weight-weekly-recent'),
   weightCount: $('weight-count'),
   weightChart: $('weight-chart'),
   weightEmpty: $('weight-empty'),

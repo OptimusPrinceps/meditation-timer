@@ -53,8 +53,10 @@ function refreshWeightView() {
   const all = getWeightsSorted();
   const entries = filterRange(all, currentRange);
   const regression = linearRegression(entries);
+  const recent = linearRegression(filterRange(all, '7'));
   els.weightCount.textContent = String(entries.length);
   els.weightWeekly.textContent = formatWeeklyChange(regression ? regression.slope : null);
+  els.weightWeeklyRecent.textContent = formatWeeklyChange(recent ? recent.slope : null);
 
   if (entries.length === 0) {
     els.weightChart.classList.add('hidden');

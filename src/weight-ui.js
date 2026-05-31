@@ -61,6 +61,7 @@ function refreshWeightView() {
   if (entries.length === 0) {
     els.weightChart.classList.add('hidden');
     els.weightEmpty.classList.remove('hidden');
+    els.weightTooltip.classList.add('hidden');
     els.weightEmpty.textContent = all.length === 0
       ? 'Log a weight to see your chart.'
       : 'No entries in this range.';
@@ -68,7 +69,8 @@ function refreshWeightView() {
   }
   els.weightEmpty.classList.add('hidden');
   els.weightChart.classList.remove('hidden');
-  renderWeightChart(els.weightChart, entries, regression);
+  const descriptor = renderWeightChart(els.weightChart, entries, regression);
+  attachChartHover(els.weightChart, entries, descriptor, els.weightTooltip);
 }
 
 // --- Weight view handlers ---

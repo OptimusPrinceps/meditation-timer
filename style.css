@@ -453,6 +453,7 @@ button.weight-export {
 
 .chart-card {
   padding: 16px 12px;
+  position: relative;
 }
 
 .weight-chart {
@@ -519,6 +520,40 @@ button.weight-export {
   stroke-dasharray: 3 3;
   opacity: 0.7;
 }
+
+.chart-tooltip {
+  position: absolute;
+  top: 8px;
+  transform: translateX(-50%);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  padding: 4px 8px;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.chart-tooltip.hidden { display: none; }
+
+.chart-crosshair {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.chart-crosshair.hidden { display: none; }
+
+.chart-focus {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+
+.chart-focus.hidden { display: none; }
 
 /* Calisthenics (Training) exercise log rows */
 .cali-row {

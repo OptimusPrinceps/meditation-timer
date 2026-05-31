@@ -36,6 +36,7 @@ const els = {
   weightWeeklyRecent: $('weight-weekly-recent'),
   weightCount: $('weight-count'),
   weightChart: $('weight-chart'),
+  weightTooltip: $('weight-tooltip'),
   weightEmpty: $('weight-empty'),
   rangeBtns: document.querySelectorAll('#weight-view .range-btn'),
   goalKg: $('goal-kg'),

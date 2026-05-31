@@ -164,6 +164,80 @@ function renderWeightChart(svg, entries, regression, markers) {
       class: 'chart-dot',
     }));
   }
+
+  return {
+    xScale,
+    yScale,
+    plot: { x: M.left, y: M.top, w: plotW, h: plotH },
+  };
+}
+
+// Wires pointer interactivity onto a chart rendered by renderWeightChart.
+// `descriptor` is renderWeightChart's return value; `tooltipEl` is an HTML
+// element positioned over the chart card. Maps clientX into the 600-wide
+// viewBox, snaps to the nearest entry, and shows a crosshair + focus dot +
+// tooltip. Re-appends its own overlay on each call (safe after a re-render,
+// which wipes the SVG).
+function attachChartHover(svg, entries, descriptor, tooltipEl) {
+  if (!descriptor || entries.length === 0) {
+    tooltipEl.classList.add('hidden');
+    return;
+  }
+  const { xScale, yScale, plot } = descriptor;
+
+  const crosshair = svgEl('line', {
+    x1: 0, x2: 0, y1: plot.y, y2: plot.y + plot.h,
+    class: 'chart-crosshair hidden',
+  });
+  const focus = svgEl('circle', { cx: 0, cy: 0, r: 5, class: 'chart-focus hidden' });
+  const hit = svgEl('rect', {
+    x: plot.x, y: plot.y, width: plot.w, height: plot.h,
+    fill: 'transparent', style: 'cursor: crosshair;',
+  });
+  svg.appendChild(crosshair);
+  svg.appendChild(focus);
+  svg.appendChild(hit);
+
+  const xsMs = entries.map((e) => parseDateLocal(e.date).getTime());
+
+  function hide() {
+    crosshair.classList.add('hidden');
+    focus.classList.add('hidden');
+    tooltipEl.classList.add('hidden');
+  }
+
+  function show(evt) {
+    const rect = svg.getBoundingClientRect();
+    if (rect.width === 0) return;
+    // viewBox is 0 0 600 320; map client X into viewBox units.
+    const vbX = ((evt.clientX - rect.left) / rect.width) * 600;
+    // Nearest entry by plotted x position.
+    let best = 0, bestDist = Infinity;
+    for (let i = 0; i < entries.length; i++) {
+      const d = Math.abs(xScale(xsMs[i]) - vbX);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    const e = entries[best];
+    const px = xScale(xsMs[best]);
+    const py = yScale(e.kg);
+
+    crosshair.setAttribute('x1', px);
+    crosshair.setAttribute('x2', px);
+    crosshair.classList.remove('hidden');
+    focus.setAttribute('cx', px);
+    focus.setAttribute('cy', py);
+    focus.classList.remove('hidden');
+
+    tooltipEl.textContent = `${formatChartDate(parseDateLocal(e.date))} · ${e.kg.toFixed(1)} kg`;
+    tooltipEl.classList.remove('hidden');
+    // Position the HTML tooltip relative to the chart card, clamped on screen.
+    const leftPct = (px / 600) * 100;
+    tooltipEl.style.left = `${Math.max(4, Math.min(96, leftPct))}%`;
+  }
+
+  hit.addEventListener('pointermove', show);
+  hit.addEventListener('pointerdown', show);
+  hit.addEventListener('pointerleave', hide);
 }
 
 // ============================================================================

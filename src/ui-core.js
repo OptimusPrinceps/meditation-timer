@@ -35,6 +35,8 @@ const els = {
   weightWeekly: $('weight-weekly'),
   weightWeeklyRecent: $('weight-weekly-recent'),
   weightCount: $('weight-count'),
+  weightHistory: $('weight-history'),
+  weightHistoryCount: $('weight-history-count'),
   weightChart: $('weight-chart'),
   weightTooltip: $('weight-tooltip'),
   weightEmpty: $('weight-empty'),

@@ -49,8 +49,46 @@ function renderCoachReport(report) {
   }
 }
 
+function renderWeightHistory(all) {
+  els.weightHistoryCount.textContent = String(all.length);
+  while (els.weightHistory.firstChild) els.weightHistory.removeChild(els.weightHistory.firstChild);
+  // Newest first; delta is vs the chronologically previous entry.
+  for (let i = all.length - 1; i >= 0; i--) {
+    const e = all[i];
+    const prev = i > 0 ? all[i - 1] : null;
+    const li = document.createElement('li');
+    li.className = 'history-row';
+
+    const date = document.createElement('span');
+    date.textContent = formatChartDate(parseDateLocal(e.date));
+
+    const right = document.createElement('span');
+    right.className = 'history-value';
+    const kg = document.createElement('span');
+    kg.textContent = `${e.kg.toFixed(1)} kg`;
+    right.appendChild(kg);
+    if (prev) {
+      const diff = e.kg - prev.kg;
+      const delta = document.createElement('span');
+      delta.className = 'history-delta';
+      if (Math.abs(diff) < 0.05) {
+        delta.textContent = '0.0';
+      } else {
+        delta.textContent = `${diff < 0 ? '−' : '+'}${Math.abs(diff).toFixed(1)}`;
+        delta.classList.add(diff < 0 ? 'down' : 'up');
+      }
+      right.appendChild(delta);
+    }
+
+    li.appendChild(date);
+    li.appendChild(right);
+    els.weightHistory.appendChild(li);
+  }
+}
+
 function refreshWeightView() {
   const all = getWeightsSorted();
+  renderWeightHistory(all);
   const entries = filterRange(all, currentRange);
   const regression = linearRegression(entries);
   const recent = linearRegression(filterRange(all, '7'));

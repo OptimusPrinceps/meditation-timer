@@ -7,6 +7,15 @@
 // The config currently displayed/loaded on the home screen.
 let currentConfigName = null;
 
+// Kegel placement ('start' | 'end') for the loaded config. The settings form has
+// no field for it (it's toggled on the home screen), so we carry it through the
+// form round-trip here rather than dropping it on save.
+let loadedKegelPosition = 'end';
+
+function normalizeKegelPosition(pos) {
+  return pos === 'start' ? 'start' : 'end';
+}
+
 function readForm() {
   return {
     delaySeconds: Math.max(0, parseInt(els.delaySeconds.value, 10) || 0),
@@ -16,6 +25,7 @@ function readForm() {
     freeMinutes: Math.max(0, parseFloat(els.freeMinutes.value) || 0),
     kegelCount: Math.max(0, parseInt(els.kegelCount.value, 10) || 0),
     kegelSeconds: Math.max(0, parseInt(els.kegelSeconds.value, 10) || 0),
+    kegelPosition: loadedKegelPosition,
   };
 }
 
@@ -27,6 +37,7 @@ function writeForm(config) {
   els.freeMinutes.value = config.freeMinutes;
   els.kegelCount.value = config.kegelCount || 0;
   els.kegelSeconds.value = config.kegelSeconds || 0;
+  loadedKegelPosition = normalizeKegelPosition(config.kegelPosition);
   updateTotal();
 }
 
@@ -46,12 +57,15 @@ function updateTotal() {
   const delayMs = c.delaySeconds * 1000;
   const totalMs = delayMs + warmupMs + intervalsMs + freeMs + kegelMs;
   els.totalDisplay.textContent = formatMmSs(totalMs);
+  // Listed in the order the segments actually run.
+  const kegelAtStart = normalizeKegelPosition(c.kegelPosition) === 'start';
   const parts = [];
   if (delayMs > 0) parts.push(`Delay ${formatMmSs(delayMs)}`);
+  if (kegelMs > 0 && kegelAtStart) parts.push(`Kegel ${formatMmSs(kegelMs)}`);
   if (warmupMs > 0) parts.push(`Warmup ${formatMmSs(warmupMs)}`);
   parts.push(`Intervals ${formatMmSs(intervalsMs)}`);
   parts.push(`Free ${formatMmSs(freeMs)}`);
-  if (kegelMs > 0) parts.push(`Kegel ${formatMmSs(kegelMs)}`);
+  if (kegelMs > 0 && !kegelAtStart) parts.push(`Kegel ${formatMmSs(kegelMs)}`);
   els.totalBreakdown.textContent = parts.join(' · ');
 }
 
@@ -206,12 +220,25 @@ function refreshHome() {
   const warmupMs = minutesToMs(config.warmupMinutes || 0);
   const delayMs = config.delaySeconds * 1000;
   els.homeTotal.textContent = formatMmSs(delayMs + warmupMs + intervalsMs + freeMs + kegelMs);
-  const parts = [`${config.intervalCount} × ${config.intervalMinutes} min`];
-  if (config.warmupMinutes > 0) parts.push(`Warmup ${config.warmupMinutes} min`);
-  if (config.freeMinutes > 0) parts.push(`Free ${config.freeMinutes} min`);
-  if (config.kegelCount > 0 && config.kegelSeconds > 0) parts.push(`Kegel ${config.kegelCount} × ${config.kegelSeconds}s`);
+  const hasKegel = config.kegelCount > 0 && config.kegelSeconds > 0;
+  const kegelAtStart = normalizeKegelPosition(config.kegelPosition) === 'start';
+  const kegelLabel = `Kegel ${config.kegelCount} × ${config.kegelSeconds}s`;
+  // Listed in the order the segments actually run.
+  const parts = [];
   if (config.delaySeconds > 0) parts.push(`Delay ${config.delaySeconds}s`);
+  if (hasKegel && kegelAtStart) parts.push(kegelLabel);
+  if (config.warmupMinutes > 0) parts.push(`Warmup ${config.warmupMinutes} min`);
+  parts.push(`${config.intervalCount} × ${config.intervalMinutes} min`);
+  if (config.freeMinutes > 0) parts.push(`Free ${config.freeMinutes} min`);
+  if (hasKegel && !kegelAtStart) parts.push(kegelLabel);
   els.homeBreakdown.textContent = parts.join(' · ');
+
+  // Kegel placement toggle: only relevant when a kegel section is configured.
+  if (els.kegelToggleRow) {
+    els.kegelToggleRow.classList.toggle('hidden', !hasKegel);
+    els.kegelPosStart.classList.toggle('active', kegelAtStart);
+    els.kegelPosEnd.classList.toggle('active', !kegelAtStart);
+  }
 
   // Advance button: only when rotation has both slots and current matches one.
   const rot = loadRotation();
@@ -289,6 +316,22 @@ els.btnAdvance.addEventListener('click', () => {
   setCurrentConfig(other);
   refreshHome();
 });
+
+// Kegel placement toggle (home screen). Mutates and persists the loaded config.
+function setKegelPosition(pos) {
+  if (!currentConfigName) return;
+  const configs = loadConfigs();
+  const config = configs[currentConfigName];
+  if (!config) return;
+  const next = normalizeKegelPosition(pos);
+  if (normalizeKegelPosition(config.kegelPosition) === next) return;
+  saveConfig(currentConfigName, { ...config, kegelPosition: next });
+  loadedKegelPosition = next;
+  refreshHome();
+}
+
+els.kegelPosStart.addEventListener('click', () => setKegelPosition('start'));
+els.kegelPosEnd.addEventListener('click', () => setKegelPosition('end'));
 
 els.btnOpenSettings.addEventListener('click', showSettings);
 

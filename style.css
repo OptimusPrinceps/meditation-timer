@@ -255,6 +255,21 @@ button.hidden { display: none; }
   min-height: 1.2em;
 }
 
+.kegel-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.kegel-toggle-label {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.kegel-toggle-row .range-row {
+  width: 180px;
+}
+
 .link-button {
   background: transparent;
   border: none;

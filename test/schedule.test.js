@@ -58,3 +58,26 @@ test('no-free case: last interval keeps its closing double, then kegels', () => 
   assert.strictEqual(kegels.length, 1);
   assert.strictEqual(kegels[0].bellsAfter, 2);
 });
+
+test('kegelPosition "start" places kegels right after the delay', () => {
+  const segs = buildSchedule(
+    { ...base, kegelPosition: 'start', kegelCount: 2, kegelSeconds: 15 }, TIMING);
+  assert.strictEqual(segs[0].kind, 'delay');
+  assert.strictEqual(segs[1].kind, 'kegel');
+  assert.strictEqual(segs[2].kind, 'kegel');
+  const firstKegelIdx = segs.findIndex((s) => s.kind === 'kegel');
+  const firstIntervalIdx = segs.findIndex((s) => s.kind === 'interval');
+  assert.ok(firstKegelIdx < firstIntervalIdx, 'kegels come before the intervals');
+});
+
+test('kegels at the start ring a single bell each (no closing double)', () => {
+  const segs = buildSchedule(
+    { ...base, kegelPosition: 'start', kegelCount: 2, kegelSeconds: 15 }, TIMING);
+  const kegels = segs.filter((s) => s.kind === 'kegel');
+  assert.strictEqual(kegels[0].bellsAfter, 1);
+  assert.strictEqual(kegels[1].bellsAfter, 1);
+  assert.strictEqual(kegels[1].bellGapMs, undefined);
+  // The session still closes on the last interval (no free here).
+  const intervals = segs.filter((s) => s.kind === 'interval');
+  assert.strictEqual(intervals[intervals.length - 1].bellsAfter, 2);
+});

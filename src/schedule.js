@@ -8,6 +8,26 @@ function minutesToMs(min) {
   return Math.round(min * 60 * 1000);
 }
 
+// Append the optional kegel section to `segments`. Each kegel ends with a single
+// bell; when this is the closing section (kegels at the end of the session) the
+// last kegel ends with the closing double bell instead.
+function pushKegels(segments, config, closingGapMs, isClosing) {
+  const kegelN = config.kegelCount || 0;
+  const kegelDurMs = Math.round((config.kegelSeconds || 0) * 1000);
+  if (kegelN <= 0 || kegelDurMs <= 0) return;
+  for (let i = 0; i < kegelN; i++) {
+    const isLast = i === kegelN - 1;
+    const closes = isLast && isClosing;
+    segments.push({
+      kind: 'kegel',
+      label: `Kegel ${i + 1} of ${kegelN}`,
+      durationMs: kegelDurMs,
+      bellsAfter: closes ? 2 : 1,
+      ...(closes ? { bellGapMs: closingGapMs } : {}),
+    });
+  }
+}
+
 function buildSchedule(config, bellTiming) {
   const openingGapMs = Math.round(bellTiming.openingGapSeconds * 1000);
   const closingGapMs = Math.round(bellTiming.closingGapSeconds * 1000);
@@ -18,6 +38,7 @@ function buildSchedule(config, bellTiming) {
   const intervalDur = minutesToMs(config.intervalMinutes);
   const hasFree = config.freeMinutes > 0;
   const hasWarmup = warmupMs > 0;
+  const kegelAtStart = config.kegelPosition === 'start';
   const n = config.intervalCount;
 
   segments.push({
@@ -27,6 +48,10 @@ function buildSchedule(config, bellTiming) {
     bellsAfter: 3,
     bellGapMs: openingGapMs,
   });
+
+  // Kegels at the start sit right after the delay and ring a single transition
+  // bell each — the session's real close still belongs to the last interval/free.
+  if (kegelAtStart) pushKegels(segments, config, closingGapMs, false);
 
   if (hasWarmup) {
     segments.push({
@@ -59,22 +84,8 @@ function buildSchedule(config, bellTiming) {
     });
   }
 
-  // Optional kegel section, appended at the very end. Each interval ends with a
-  // single bell; the last ends with the closing double bell.
-  const kegelN = config.kegelCount || 0;
-  const kegelDurMs = Math.round((config.kegelSeconds || 0) * 1000);
-  if (kegelN > 0 && kegelDurMs > 0) {
-    for (let i = 0; i < kegelN; i++) {
-      const isLast = i === kegelN - 1;
-      segments.push({
-        kind: 'kegel',
-        label: `Kegel ${i + 1} of ${kegelN}`,
-        durationMs: kegelDurMs,
-        bellsAfter: isLast ? 2 : 1,
-        ...(isLast ? { bellGapMs: closingGapMs } : {}),
-      });
-    }
-  }
+  // By default the kegel section is appended at the very end and closes the session.
+  if (!kegelAtStart) pushKegels(segments, config, closingGapMs, true);
 
   return segments;
 }

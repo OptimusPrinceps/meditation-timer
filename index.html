@@ -16,6 +16,7 @@
     <button id="btn-tab-weight" type="button" class="tab">Weight</button>
     <button id="btn-tab-emissions" type="button" class="tab">Emissions</button>
     <button id="btn-tab-watering" type="button" class="tab">Watering</button>
+    <button id="btn-tab-calisthenics" type="button" class="tab">Training</button>
     <button id="btn-tab-weather" type="button" class="tab">Weather</button>
   </nav>
 
@@ -336,6 +337,74 @@
     </section>
   </main>
 
+  <main id="calisthenics-view" class="view hidden">
+    <section class="card">
+      <div class="weight-stats">
+        <div class="stat">
+          <div class="stat-label">Block</div>
+          <div id="cali-block-name" class="stat-value">—</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Weeks in</div>
+          <div id="cali-block-weeks" class="stat-value">—</div>
+        </div>
+      </div>
+      <p id="cali-next-up" class="rotation-status"></p>
+      <div class="row">
+        <label for="cali-session">Session</label>
+        <select id="cali-session"></select>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <label for="cali-date">Date</label>
+        <input id="cali-date" type="date" />
+      </div>
+      <div id="cali-exercises"></div>
+      <div class="row">
+        <label for="cali-notes">Notes</label>
+        <textarea id="cali-notes" rows="2" placeholder="optional"></textarea>
+      </div>
+      <div class="row">
+        <button id="btn-cali-save" type="button" class="primary">Save session</button>
+      </div>
+      <p id="cali-message" class="message"></p>
+    </section>
+
+    <section class="card">
+      <div class="row">
+        <label for="cali-exercise-pick">Progression</label>
+        <select id="cali-exercise-pick"></select>
+      </div>
+      <div class="range-row" role="group" aria-label="Time range">
+        <button type="button" class="range-btn" data-crange="30">30d</button>
+        <button type="button" class="range-btn active" data-crange="90">90d</button>
+        <button type="button" class="range-btn" data-crange="365">1y</button>
+        <button type="button" class="range-btn" data-crange="all">All</button>
+      </div>
+    </section>
+
+    <section class="card chart-card">
+      <svg id="cali-chart" class="weight-chart" viewBox="0 0 600 320" aria-label="Exercise progression"></svg>
+      <p id="cali-empty" class="chart-empty">Log sessions to see progression.</p>
+    </section>
+
+    <section class="card">
+      <div class="stat-label">History</div>
+      <ul id="cali-history" class="history-list"></ul>
+    </section>
+
+    <section class="card">
+      <div class="stat-label">Weekly coach</div>
+      <p id="cali-coach-generated" class="rotation-status"></p>
+      <p id="cali-coach-read" class="message"></p>
+      <ul id="cali-coach-actions" class="history-list"></ul>
+      <button id="btn-cali-coach-refresh" type="button">Refresh</button>
+      <span id="cali-coach-status" class="rotation-status"></span>
+    </section>
+  </main>
+
   <main id="weather-view" class="view hidden">
     <p id="weather-status" class="weather-status hidden"></p>
 
@@ -365,6 +434,7 @@
   <script src="src/audio.js"></script>
   <script src="src/schedule.js"></script>
   <script src="src/charts.js"></script>
+  <script src="src/calisthenics-plan.js"></script>
   <script src="src/coach.js"></script>
   <script src="src/ui-core.js"></script>
   <script src="src/connection.js"></script>
@@ -372,6 +442,7 @@
   <script src="src/weight-ui.js"></script>
   <script src="src/emissions-ui.js"></script>
   <script src="src/watering-ui.js"></script>
+  <script src="src/calisthenics-ui.js"></script>
   <script src="src/weather-ui.js"></script>
   <script src="src/main.js"></script>
 </body>

@@ -14,6 +14,7 @@ const els = {
   weightView: $('weight-view'),
   emissionsView: $('emissions-view'),
   wateringView: $('watering-view'),
+  calisthenicsView: $('calisthenics-view'),
   weatherView: $('weather-view'),
   // connection status
   serverBanner: $('server-banner'),
@@ -23,6 +24,7 @@ const els = {
   btnTabWeight: $('btn-tab-weight'),
   btnTabEmissions: $('btn-tab-emissions'),
   btnTabWatering: $('btn-tab-watering'),
+  btnTabCalisthenics: $('btn-tab-calisthenics'),
   btnTabWeather: $('btn-tab-weather'),
   // weight
   weightDate: $('weight-date'),
@@ -79,6 +81,25 @@ const els = {
   wateringChart: $('watering-chart'),
   wateringEmpty: $('watering-empty'),
   wateringHistory: $('watering-history'),
+  // calisthenics (Training)
+  caliBlockName: $('cali-block-name'),
+  caliBlockWeeks: $('cali-block-weeks'),
+  caliNextUp: $('cali-next-up'),
+  caliSession: $('cali-session'),
+  caliDate: $('cali-date'),
+  caliExercises: $('cali-exercises'),
+  caliNotes: $('cali-notes'),
+  btnCaliSave: $('btn-cali-save'),
+  caliMessage: $('cali-message'),
+  caliExercisePick: $('cali-exercise-pick'),
+  caliChart: $('cali-chart'),
+  caliEmpty: $('cali-empty'),
+  caliHistory: $('cali-history'),
+  caliCoachGenerated: $('cali-coach-generated'),
+  caliCoachRead: $('cali-coach-read'),
+  caliCoachActions: $('cali-coach-actions'),
+  btnCaliCoachRefresh: $('btn-cali-coach-refresh'),
+  caliCoachStatus: $('cali-coach-status'),
   // weather
   weatherStatus: $('weather-status'),
   weatherHero: $('weather-hero'),
@@ -136,6 +157,7 @@ const els = {
 // Scoped after the literal so they can reference the cached views.
 els.emissionRangeBtns = els.emissionsView.querySelectorAll('.range-btn');
 els.wateringRangeBtns = els.wateringView.querySelectorAll('.range-btn');
+els.caliRangeBtns = els.calisthenicsView.querySelectorAll('.range-btn');
 
 function hideAllViews() {
   els.homeView.classList.add('hidden');
@@ -144,6 +166,7 @@ function hideAllViews() {
   els.weightView.classList.add('hidden');
   els.emissionsView.classList.add('hidden');
   els.wateringView.classList.add('hidden');
+  els.calisthenicsView.classList.add('hidden');
   els.weatherView.classList.add('hidden');
 }
 
@@ -152,5 +175,6 @@ function setActiveTab(name) {
   els.btnTabWeight.classList.toggle('active', name === 'weight');
   els.btnTabEmissions.classList.toggle('active', name === 'emissions');
   els.btnTabWatering.classList.toggle('active', name === 'watering');
+  els.btnTabCalisthenics.classList.toggle('active', name === 'calisthenics');
   els.btnTabWeather.classList.toggle('active', name === 'weather');
 }

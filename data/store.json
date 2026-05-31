@@ -1,35 +1,44 @@
 {
   "meta": {
     "version": 1,
-    "updatedAt": 1779293276161,
+    "updatedAt": 1780212341223,
     "seeded": true
   },
   "configs": {
     "Metta Bhavana": {
-      "delaySeconds": 300,
+      "delaySeconds": 360,
       "warmupMinutes": 9,
       "intervalCount": 5,
-      "intervalMinutes": 4,
+      "intervalMinutes": 3.5,
       "freeMinutes": 2,
       "kegelCount": 20,
       "kegelSeconds": 8
     },
     "Breath": {
-      "delaySeconds": 300,
+      "delaySeconds": 360,
       "warmupMinutes": 9,
       "intervalCount": 4,
-      "intervalMinutes": 5,
+      "intervalMinutes": 4.5,
       "freeMinutes": 2,
+      "kegelCount": 18,
+      "kegelSeconds": 8
+    },
+    "Gratitude": {
+      "delaySeconds": 360,
+      "warmupMinutes": 9,
+      "intervalCount": 1,
+      "intervalMinutes": 0.5,
+      "freeMinutes": 0,
       "kegelCount": 20,
       "kegelSeconds": 8
     }
   },
-  "lastConfig": "Breath",
+  "lastConfig": "Metta Bhavana",
   "rotation": {
     "a": "Breath",
     "b": "Metta Bhavana",
     "lastDoneName": "Breath",
-    "lastDoneDate": "2026-05-20"
+    "lastDoneDate": "2026-05-29"
   },
   "bellTiming": {
     "openingGapSeconds": 2.5,
@@ -49,7 +58,16 @@
     "2026-05-17": 82.1,
     "2026-05-18": 82.8,
     "2026-05-19": 82.7,
-    "2026-05-20": 82.8
+    "2026-05-20": 82.8,
+    "2026-05-21": 82.4,
+    "2026-05-22": 81.9,
+    "2026-05-23": 81.6,
+    "2026-05-24": 81.3,
+    "2026-05-27": 83.2,
+    "2026-05-28": 82.6,
+    "2026-05-29": 81.7,
+    "2026-05-30": 81.4,
+    "2026-05-31": 81.2
   },
   "weightGoal": {
     "targetKg": 79,
@@ -64,19 +82,544 @@
       "name": "Jophiel",
       "emoji": "🌳",
       "log": {
-        "2026-05-20": true
+        "2026-05-20": true,
+        "2026-05-26": true
       }
     }
   ],
+  "calisthenics": {
+    "programme": {
+      "id": "v2",
+      "name": "Calisthenics v2",
+      "startedAt": "2026-05-21",
+      "planPath": "data/calisthenics_plan_v2.md",
+      "exercises": {
+        "pull_ups": {
+          "name": "Pull-ups",
+          "metric": "reps"
+        },
+        "pseudo_planche_pushups": {
+          "name": "Pseudo-planche push-ups",
+          "metric": "reps"
+        },
+        "pike_pushups": {
+          "name": "Pike push-ups",
+          "metric": "reps"
+        },
+        "archer_pushups": {
+          "name": "Archer push-ups",
+          "metric": "reps"
+        },
+        "inverted_rows": {
+          "name": "Inverted rows (feet elevated)",
+          "metric": "reps"
+        },
+        "bulgarian_split_squat": {
+          "name": "Bulgarian split squats",
+          "metric": "reps"
+        },
+        "single_leg_rdl": {
+          "name": "Single-leg RDL",
+          "metric": "reps"
+        },
+        "assisted_pistol": {
+          "name": "Assisted pistol squats",
+          "metric": "reps"
+        },
+        "handstand_hold": {
+          "name": "Chest-to-wall handstand hold",
+          "metric": "seconds"
+        },
+        "front_lever_hold": {
+          "name": "Adv. tuck front lever hold",
+          "metric": "seconds"
+        },
+        "hollow_body_hold": {
+          "name": "Hollow body hold",
+          "metric": "seconds"
+        },
+        "hanging_leg_raises": {
+          "name": "Hanging leg raises",
+          "metric": "reps"
+        },
+        "copenhagen_plank": {
+          "name": "Copenhagen plank",
+          "metric": "seconds"
+        },
+        "nordic_negatives": {
+          "name": "Nordic curl negatives",
+          "metric": "reps"
+        }
+      },
+      "sessions": [
+        {
+          "key": "A",
+          "name": "Push",
+          "subtitle": "Push emphasis + Handstand",
+          "items": [
+            {
+              "ex": "handstand_hold",
+              "target": "3×20–45s"
+            },
+            {
+              "ex": "pseudo_planche_pushups",
+              "target": "4×6–10"
+            },
+            {
+              "ex": "pull_ups",
+              "target": "3×6"
+            },
+            {
+              "ex": "pike_pushups",
+              "target": "3×6–8"
+            },
+            {
+              "ex": "bulgarian_split_squat",
+              "target": "3×8/leg"
+            }
+          ]
+        },
+        {
+          "key": "B",
+          "name": "Pull",
+          "subtitle": "Pull emphasis + Front Lever",
+          "items": [
+            {
+              "ex": "front_lever_hold",
+              "target": "3×10–12s"
+            },
+            {
+              "ex": "pull_ups",
+              "target": "4×6"
+            },
+            {
+              "ex": "archer_pushups",
+              "target": "3×5–6/side"
+            },
+            {
+              "ex": "inverted_rows",
+              "target": "3×8–10"
+            },
+            {
+              "ex": "single_leg_rdl",
+              "target": "3×8/leg"
+            }
+          ]
+        },
+        {
+          "key": "C",
+          "name": "Balanced",
+          "subtitle": "Full body",
+          "items": [
+            {
+              "ex": "pull_ups",
+              "target": "3×6"
+            },
+            {
+              "ex": "pseudo_planche_pushups",
+              "target": "3×6–8"
+            },
+            {
+              "ex": "pike_pushups",
+              "target": "3×6–8"
+            },
+            {
+              "ex": "assisted_pistol",
+              "target": "3×4–6/leg"
+            }
+          ]
+        },
+        {
+          "key": "Conditioning",
+          "name": "Conditioning",
+          "subtitle": "Core + posterior + wrist",
+          "items": [
+            {
+              "ex": "hollow_body_hold",
+              "target": "3×30–45s"
+            },
+            {
+              "ex": "hanging_leg_raises",
+              "target": "3×6–8"
+            },
+            {
+              "ex": "copenhagen_plank",
+              "target": "3×15–25s/side"
+            },
+            {
+              "ex": "nordic_negatives",
+              "target": "3×3–5"
+            }
+          ]
+        }
+      ]
+    },
+    "archivedProgrammes": [],
+    "sessions": []
+  },
   "coach": {
     "weight": {
-      "generatedAt": 1779290931586,
-      "read": "Two weeks of near-daily logging gives a real but early trend of −0.2 kg/week; the daily swings of up to 1.5 kg are normal noise, and the 7-day average of 82.4 kg is the only number worth tracking. At this pace you'd arrive at roughly 80.4 kg by July 30 — about 1.4 kg short of the 79 kg target. Closing that gap requires approximately 0.35 kg/week, which is within a healthy rate but means roughly doubling the current deficit.",
+      "generatedAt": 1779896434319,
+      "read": "The 3-week trend sits at -0.25 kg/week — real loss, but at the floor of a healthy rate. Today's 83.2 kg reading is ~1.9 kg above the 7-day average of 82.08 and almost certainly noise from the 3-day logging gap; the average is the reliable signal. At the current pace you'll reach roughly 79.8 kg by July 30 — about 0.8 kg short of your 79 kg target. To close that gap you need ~0.34 kg/week, which is well within healthy range but requires a modest, consistent improvement over the current rate.",
       "actions": [
-        "Log food intake for 5 of the next 7 days — rough estimates are fine — specifically to locate a 150–200 kcal/day reduction you can sustain; that is the precise gap between your current pace and the ~0.35 kg/week needed to reach 79 kg by July 30.",
-        "Anchor a 30g-protein breakfast each morning this week to reduce compensatory hunger later in the day as you tighten the deficit."
+        "Eliminate logging gaps: weigh every morning this week before eating or drinking, immediately after using the bathroom. Right now the sparse data (and that 3-day gap ending in a +1.9 kg spike) is masking your real trend — you need 7 consecutive daily readings to know whether you're actually accelerating or not.",
+        "Add a deliberate protein anchor at breakfast — aim for at least 30 g of protein before 9 am every day this week. This single habit tends to reduce overall daily intake without requiring tracking everything, and gives you one concrete variable to control while the trend tightens."
       ]
     }
   },
-  "weather": null
+  "weather": {
+    "key": "51.53,-0.18",
+    "fetchedAt": 1779607039142,
+    "data": {
+      "timezone": "Europe/London",
+      "current": {
+        "temp": 19,
+        "apparentTemp": 19,
+        "code": 0,
+        "icon": "clear-day",
+        "label": "Clear",
+        "isDay": true,
+        "humidity": 72,
+        "windSpeed": 4,
+        "windDir": "E",
+        "pressure": 1027,
+        "hi": 31,
+        "lo": 17
+      },
+      "hourly": [
+        {
+          "hour": "09",
+          "temp": 20,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "10",
+          "temp": 22,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "11",
+          "temp": 23,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "12",
+          "temp": 25,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "13",
+          "temp": 27,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "14",
+          "temp": 28,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "15",
+          "temp": 29,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "16",
+          "temp": 30,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "17",
+          "temp": 30,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "18",
+          "temp": 31,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "19",
+          "temp": 30,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "20",
+          "temp": 29,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "21",
+          "temp": 28,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "22",
+          "temp": 27,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "23",
+          "temp": 26,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "00",
+          "temp": 25,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "01",
+          "temp": 24,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "02",
+          "temp": 24,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "03",
+          "temp": 23,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "04",
+          "temp": 23,
+          "code": 0,
+          "icon": "clear-night",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "05",
+          "temp": 22,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "06",
+          "temp": 21,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "07",
+          "temp": 22,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        },
+        {
+          "hour": "08",
+          "temp": 23,
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "precipProb": 0
+        }
+      ],
+      "daily": [
+        {
+          "date": "2026-05-24",
+          "dayName": "Sun",
+          "code": 3,
+          "icon": "cloudy",
+          "label": "Cloudy",
+          "tempMax": 31,
+          "tempMin": 17,
+          "precipProb": 0,
+          "sunrise": "04:56",
+          "sunset": "20:58",
+          "uvIndexMax": 5
+        },
+        {
+          "date": "2026-05-25",
+          "dayName": "Mon",
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "tempMax": 34,
+          "tempMin": 21,
+          "precipProb": 0,
+          "sunrise": "04:55",
+          "sunset": "20:59",
+          "uvIndexMax": 5
+        },
+        {
+          "date": "2026-05-26",
+          "dayName": "Tue",
+          "code": 3,
+          "icon": "cloudy",
+          "label": "Cloudy",
+          "tempMax": 32,
+          "tempMin": 21,
+          "precipProb": 25,
+          "sunrise": "04:54",
+          "sunset": "21:01",
+          "uvIndexMax": 7
+        },
+        {
+          "date": "2026-05-27",
+          "dayName": "Wed",
+          "code": 0,
+          "icon": "clear-day",
+          "label": "Clear",
+          "tempMax": 23,
+          "tempMin": 15,
+          "precipProb": 2,
+          "sunrise": "04:53",
+          "sunset": "21:02",
+          "uvIndexMax": 7
+        },
+        {
+          "date": "2026-05-28",
+          "dayName": "Thu",
+          "code": 1,
+          "icon": "partly-day",
+          "label": "Mainly Clear",
+          "tempMax": 24,
+          "tempMin": 13,
+          "precipProb": 13,
+          "sunrise": "04:52",
+          "sunset": "21:03",
+          "uvIndexMax": 6
+        },
+        {
+          "date": "2026-05-29",
+          "dayName": "Fri",
+          "code": 3,
+          "icon": "cloudy",
+          "label": "Cloudy",
+          "tempMax": 30,
+          "tempMin": 16,
+          "precipProb": 1,
+          "sunrise": "04:51",
+          "sunset": "21:04",
+          "uvIndexMax": 6
+        },
+        {
+          "date": "2026-05-30",
+          "dayName": "Sat",
+          "code": 3,
+          "icon": "cloudy",
+          "label": "Cloudy",
+          "tempMax": 29,
+          "tempMin": 22,
+          "precipProb": 12,
+          "sunrise": "04:50",
+          "sunset": "21:05",
+          "uvIndexMax": 6
+        },
+        {
+          "date": "2026-05-31",
+          "dayName": "Sun",
+          "code": 51,
+          "icon": "drizzle",
+          "label": "Drizzle",
+          "tempMax": 24,
+          "tempMin": 17,
+          "precipProb": 32,
+          "sunrise": "04:49",
+          "sunset": "21:07",
+          "uvIndexMax": 5
+        },
+        {
+          "date": "2026-06-01",
+          "dayName": "Mon",
+          "code": 51,
+          "icon": "drizzle",
+          "label": "Drizzle",
+          "tempMax": 20,
+          "tempMin": 14,
+          "precipProb": 16,
+          "sunrise": "04:48",
+          "sunset": "21:08",
+          "uvIndexMax": 6
+        },
+        {
+          "date": "2026-06-02",
+          "dayName": "Tue",
+          "code": 51,
+          "icon": "drizzle",
+          "label": "Drizzle",
+          "tempMax": 23,
+          "tempMin": 16,
+          "precipProb": 37,
+          "sunrise": "04:48",
+          "sunset": "21:09",
+          "uvIndexMax": 7
+        }
+      ],
+      "tempRange": {
+        "min": 13,
+        "max": 34
+      },
+      "units": {
+        "temp": "°",
+        "wind": "km/h"
+      }
+    }
+  }
 }

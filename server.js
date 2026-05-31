@@ -7,7 +7,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { runWeightCoach } = require('./server/coach');
+const { runWeightCoach, runCalisthenicsCoach } = require('./server/coach');
 const { fetchWeather } = require('./server/weather');
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
@@ -171,23 +171,55 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  if (req.method === 'POST' && url === '/api/coach/calisthenics') {
+    try {
+      const store = readStore();
+      const report = await runCalisthenicsCoach(store);
+      store.coach = store.coach || {};
+      store.coach.calisthenics = report;
+      writeStore(store);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify(report));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: String(e.message || e) }));
+    }
+  }
+
   return serveStatic(req, res);
 });
 
-// --- Weekly staleness scheduler: regenerate if the report is missing or >7d old ---
+// --- Weekly staleness scheduler: regenerate each surface if its report is
+// missing or >7d old (only when there's enough data to coach). ---
 async function maybeRunWeekly() {
   try {
     const store = readStore();
-    if (Object.keys(store.weights || {}).length < 2) return;
-    const last = store.coach && store.coach.weight ? store.coach.weight.generatedAt : 0;
-    if (Date.now() - (last || 0) < WEEK_MS) return;
-    const report = await runWeightCoach(store);
-    store.coach = store.coach || {};
-    store.coach.weight = report;
-    writeStore(store);
-    console.log('[coach] weekly weight report regenerated');
+    const hasWeight = Object.keys(store.weights || {}).length >= 2;
+    const lastWeight = store.coach && store.coach.weight ? store.coach.weight.generatedAt : 0;
+    if (hasWeight && Date.now() - (lastWeight || 0) >= WEEK_MS) {
+      const report = await runWeightCoach(store);
+      store.coach = store.coach || {};
+      store.coach.weight = report;
+      writeStore(store);
+      console.log('[coach] weekly weight report regenerated');
+    }
   } catch (e) {
-    console.error('[coach] weekly run failed:', e.message);
+    console.error('[coach] weekly weight run failed:', e.message);
+  }
+
+  try {
+    const store = readStore();
+    const sessions = (store.calisthenics && store.calisthenics.sessions) || [];
+    const lastCali = store.coach && store.coach.calisthenics ? store.coach.calisthenics.generatedAt : 0;
+    if (sessions.length >= 2 && Date.now() - (lastCali || 0) >= WEEK_MS) {
+      const report = await runCalisthenicsCoach(store);
+      store.coach = store.coach || {};
+      store.coach.calisthenics = report;
+      writeStore(store);
+      console.log('[coach] weekly calisthenics report regenerated');
+    }
+  } catch (e) {
+    console.error('[coach] weekly calisthenics run failed:', e.message);
   }
 }
 

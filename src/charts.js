@@ -64,7 +64,9 @@ function formatChartDate(d) {
   return `${months[d.getMonth()]} ${d.getDate()}`;
 }
 
-function renderWeightChart(svg, entries, regression) {
+// `markers` (optional): array of YYYY-MM-DD dates drawn as vertical dashed
+// lines (e.g. training block changes). In-range dates only; ignored elsewhere.
+function renderWeightChart(svg, entries, regression, markers) {
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   if (entries.length === 0) return;
 
@@ -117,6 +119,18 @@ function renderWeightChart(svg, entries, regression) {
     });
     text.textContent = formatChartDate(new Date(ms));
     svg.appendChild(text);
+  }
+
+  // Block-change markers (vertical dashed lines) behind the data
+  if (Array.isArray(markers) && entries.length >= 2) {
+    for (const dateStr of markers) {
+      const ms = parseDateLocal(dateStr).getTime();
+      if (ms < xMin || ms > xMax) continue;
+      const x = xScale(ms);
+      svg.appendChild(svgEl('line', {
+        x1: x, x2: x, y1: M.top, y2: M.top + plotH, class: 'chart-block-marker',
+      }));
+    }
   }
 
   // Trend line first so it sits behind the data line

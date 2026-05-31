@@ -34,6 +34,7 @@ function emptyStore() {
     weightGoal: null,
     emissions: {},
     plants: [],
+    calisthenics: { programme: null, archivedProgrammes: [], sessions: [] },
     coach: {},
     weather: null,
   };
@@ -195,6 +196,98 @@ function getPlantLogSorted(id) {
   const p = getPlant(id);
   if (!p) return [];
   return Object.keys(p.log).sort().map((date) => ({ date }));
+}
+
+// --- Calisthenics (training blocks) ---
+// STORE.calisthenics = { programme, archivedProgrammes[], sessions[] }. The
+// active `programme` holds the catalog as data; sessions are tagged with the
+// programmeId of the block they were logged under, so charts/coach can span or
+// separate blocks. See src/calisthenics-plan.js for the seed.
+function loadCalisthenics() {
+  const c = STORE.calisthenics;
+  if (!c || typeof c !== 'object') {
+    STORE.calisthenics = { programme: null, archivedProgrammes: [], sessions: [] };
+  } else {
+    c.archivedProgrammes = c.archivedProgrammes || [];
+    c.sessions = c.sessions || [];
+    if (!('programme' in c)) c.programme = null;
+  }
+  return STORE.calisthenics;
+}
+
+function getActiveProgramme() { return loadCalisthenics().programme; }
+function setActiveProgramme(p) { loadCalisthenics().programme = p; persist(); }
+
+// Start a fresh block: archive the current programme, adopt `newProg` (stamped
+// with today's startedAt). Past sessions keep their old programmeId, so history
+// is preserved and charts still span both blocks.
+function archiveAndSetProgramme(newProg) {
+  const c = loadCalisthenics();
+  if (c.programme) c.archivedProgrammes.push(c.programme);
+  c.programme = { ...newProg, startedAt: newProg.startedAt || todayLocal() };
+  persist();
+  return c.programme;
+}
+
+function getCalisthenicsSessions() {
+  return loadCalisthenics().sessions.slice().sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function addCalisthenicsSession(date, session, results, notes) {
+  const c = loadCalisthenics();
+  const programmeId = c.programme ? c.programme.id : null;
+  c.sessions.push({ id: crypto.randomUUID(), date, programmeId, session, results, notes: notes || '' });
+  persist();
+}
+
+function removeCalisthenicsSession(id) {
+  const c = loadCalisthenics();
+  c.sessions = c.sessions.filter((s) => s.id !== id);
+  persist();
+}
+
+// Successor of the last logged session in the active programme's session order
+// (A → B → C → Conditioning → A …). Defaults to the first session when empty.
+function getNextCalisthenicsSession() {
+  const prog = getActiveProgramme();
+  if (!prog || !prog.sessions.length) return null;
+  const order = prog.sessions.map((s) => s.key);
+  const logged = getCalisthenicsSessions();
+  if (!logged.length) return order[0];
+  const lastKey = logged[logged.length - 1].session;
+  const idx = order.indexOf(lastKey);
+  return idx === -1 ? order[0] : order[(idx + 1) % order.length];
+}
+
+// All sessions (across blocks) carrying a numeric result for exKey, as
+// [{ date, kg: value }] — the `kg` key lets the existing chart/regression
+// helpers consume it unchanged.
+function getExerciseHistory(exKey) {
+  return getCalisthenicsSessions()
+    .filter((s) => s.results && typeof s.results[exKey] === 'number')
+    .map((s) => ({ date: s.date, kg: s.results[exKey] }));
+}
+
+// Block-change dates for chart markers: each block's startedAt, minus the
+// earliest (the first block isn't a "change").
+function getBlockBoundaryDates() {
+  const c = loadCalisthenics();
+  const dates = [...c.archivedProgrammes, c.programme]
+    .filter((p) => p && p.startedAt)
+    .map((p) => p.startedAt)
+    .sort();
+  return dates.slice(1);
+}
+
+// Resolve an exercise's { name, metric } from the active programme first, then
+// archived blocks, so old sessions still render names after a block swap.
+function getExerciseMeta(key) {
+  const c = loadCalisthenics();
+  const blocks = [c.programme, ...c.archivedProgrammes].filter(Boolean);
+  for (const b of blocks) {
+    if (b.exercises && b.exercises[key]) return b.exercises[key];
+  }
+  return { name: key, metric: 'reps' };
 }
 
 // --- Dates / rotation suggestion ---

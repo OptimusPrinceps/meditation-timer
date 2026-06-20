@@ -103,7 +103,12 @@ function formatChartDate(d) {
 
 // `markers` (optional): array of YYYY-MM-DD dates drawn as vertical dashed
 // lines (e.g. training block changes). In-range dates only; ignored elsewhere.
-function renderWeightChart(svg, entries, regression, markers) {
+// `opts.smooth` (optional): when true (the Weight tab), draw a bold EMA curve as
+// the primary trend and recede the raw series. When false/omitted (the Training
+// progression chart), draw the straight `regression` trend over a full-weight raw
+// series — the original behaviour.
+function renderWeightChart(svg, entries, regression, markers, opts) {
+  const smooth = !!(opts && opts.smooth);
   while (svg.firstChild) svg.removeChild(svg.firstChild);
   if (entries.length === 0) return;
 
@@ -170,33 +175,45 @@ function renderWeightChart(svg, entries, regression, markers) {
     }
   }
 
-  // Raw data line (receded — faint grey behind EMA)
+  // Straight regression trend behind the data (non-smooth mode only).
+  if (!smooth && regression && entries.length >= 2) {
+    const dayEnd = (xMax - regression.firstMs) / DAY_MS;
+    const yStart = regression.intercept;
+    const yEnd = regression.intercept + regression.slope * dayEnd;
+    svg.appendChild(svgEl('line', {
+      x1: xScale(xMin), y1: yScale(yStart),
+      x2: xScale(xMax), y2: yScale(yEnd),
+      class: 'chart-trend',
+    }));
+  }
+
+  // Data line — receded behind the EMA when smoothing, full-weight otherwise.
   if (entries.length >= 2) {
     const d = entries.map((e, i) => {
       const x = xScale(parseDateLocal(e.date).getTime());
       const y = yScale(e.kg);
       return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
     }).join(' ');
-    svg.appendChild(svgEl('path', { d, class: 'chart-line-muted' }));
+    svg.appendChild(svgEl('path', { d, class: smooth ? 'chart-line-muted' : 'chart-line' }));
   }
 
-  // Raw dots (receded)
+  // Data dots — receded when smoothing, full-weight otherwise.
   for (const e of entries) {
     svg.appendChild(svgEl('circle', {
       cx: xScale(parseDateLocal(e.date).getTime()),
       cy: yScale(e.kg),
-      r: 3,
-      class: 'chart-dot-muted',
+      r: smooth ? 3 : 3.5,
+      class: smooth ? 'chart-dot-muted' : 'chart-dot',
     }));
   }
 
-  // Smoothed EMA trend (primary line, on top)
-  if (entries.length >= 2) {
+  // Smoothed EMA trend (primary line, on top) — smooth mode only.
+  if (smooth && entries.length >= 2) {
     const ema = computeEMA(entries, WEIGHT_EMA_ALPHA);
     const d = ema.map((p, i) =>
       `${i === 0 ? 'M' : 'L'} ${xScale(p.ms).toFixed(1)} ${yScale(p.kg).toFixed(1)}`
     ).join(' ');
-    svg.appendChild(svgEl('path', { d, class: 'chart-trend' }));
+    svg.appendChild(svgEl('path', { d, class: 'chart-ema' }));
   }
 
   return {

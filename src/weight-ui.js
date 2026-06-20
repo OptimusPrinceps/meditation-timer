@@ -109,7 +109,7 @@ function refreshWeightView() {
   }
   els.weightEmpty.classList.add('hidden');
   els.weightChart.classList.remove('hidden');
-  const descriptor = renderWeightChart(els.weightChart, entries, regression);
+  const descriptor = renderWeightChart(els.weightChart, entries, regression, null, { smooth: true });
   attachChartHover(els.weightChart, entries, descriptor, els.weightTooltip);
 }
 

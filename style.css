@@ -509,6 +509,14 @@ button.weight-export {
 .chart-trend {
   fill: none;
   stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  opacity: 0.6;
+}
+
+.chart-ema {
+  fill: none;
+  stroke: var(--accent);
   stroke-width: 2.5;
   stroke-linejoin: round;
   stroke-linecap: round;

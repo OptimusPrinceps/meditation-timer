@@ -170,36 +170,33 @@ function renderWeightChart(svg, entries, regression, markers) {
     }
   }
 
-  // Trend line first so it sits behind the data line
-  if (regression && entries.length >= 2) {
-    const dayEnd = (xMax - regression.firstMs) / DAY_MS;
-    const yStart = regression.intercept;
-    const yEnd = regression.intercept + regression.slope * dayEnd;
-    svg.appendChild(svgEl('line', {
-      x1: xScale(xMin), y1: yScale(yStart),
-      x2: xScale(xMax), y2: yScale(yEnd),
-      class: 'chart-trend',
-    }));
-  }
-
-  // Data line
+  // Raw data line (receded — faint grey behind EMA)
   if (entries.length >= 2) {
     const d = entries.map((e, i) => {
       const x = xScale(parseDateLocal(e.date).getTime());
       const y = yScale(e.kg);
       return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`;
     }).join(' ');
-    svg.appendChild(svgEl('path', { d, class: 'chart-line' }));
+    svg.appendChild(svgEl('path', { d, class: 'chart-line-muted' }));
   }
 
-  // Data dots on top
+  // Raw dots (receded)
   for (const e of entries) {
     svg.appendChild(svgEl('circle', {
       cx: xScale(parseDateLocal(e.date).getTime()),
       cy: yScale(e.kg),
-      r: 3.5,
-      class: 'chart-dot',
+      r: 3,
+      class: 'chart-dot-muted',
     }));
+  }
+
+  // Smoothed EMA trend (primary line, on top)
+  if (entries.length >= 2) {
+    const ema = computeEMA(entries, WEIGHT_EMA_ALPHA);
+    const d = ema.map((p, i) =>
+      `${i === 0 ? 'M' : 'L'} ${xScale(p.ms).toFixed(1)} ${yScale(p.kg).toFixed(1)}`
+    ).join(' ');
+    svg.appendChild(svgEl('path', { d, class: 'chart-trend' }));
   }
 
   return {

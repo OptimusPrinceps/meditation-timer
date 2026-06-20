@@ -91,10 +91,11 @@ function refreshWeightView() {
   renderWeightHistory(all);
   const entries = filterRange(all, currentRange);
   const regression = linearRegression(entries);
-  const recent = linearRegression(filterRange(all, '7'));
   els.weightCount.textContent = String(entries.length);
   els.weightWeekly.textContent = formatWeeklyChange(regression ? regression.slope : null);
-  els.weightWeeklyRecent.textContent = formatWeeklyChange(recent ? recent.slope : null);
+  const recentDelta = emaWeeklyDelta(all, WEIGHT_EMA_ALPHA);
+  els.weightWeeklyRecent.textContent =
+    formatWeeklyChange(recentDelta == null ? null : recentDelta / 7);
 
   if (entries.length === 0) {
     els.weightChart.classList.add('hidden');

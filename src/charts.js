@@ -60,8 +60,27 @@ function computeEMA(entries, alpha) {
   return out;
 }
 
-// Real implementation added in Task 2; stub keeps the module loadable for now.
-function emaWeeklyDelta() { return null; }
+// Change in the EMA over the last 7 days, expressed as kg/week.
+// null if <2 entries or the data spans <3 days.
+function emaWeeklyDelta(entries, alpha) {
+  if (!entries || entries.length < 2) return null;
+  const series = computeEMA(entries, alpha);
+  const last = series[series.length - 1];
+  const first = series[0];
+  const t = last.ms - 7 * DAY_MS;
+  if (t <= first.ms) {
+    const spanDays = (last.ms - first.ms) / DAY_MS;
+    if (spanDays < 3) return null;
+    return ((last.kg - first.kg) / spanDays) * 7;
+  }
+  // t lies strictly between first.ms and last.ms: interpolate the EMA at t.
+  let i = 0;
+  while (i < series.length - 1 && series[i + 1].ms <= t) i++;
+  const a = series[i], b = series[i + 1];
+  const frac = (t - a.ms) / (b.ms - a.ms);
+  const emaAtT = a.kg + frac * (b.kg - a.kg);
+  return last.kg - emaAtT;
+}
 
 function formatWeeklyChange(slope) {
   if (slope == null) return '—';

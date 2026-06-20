@@ -33,6 +33,48 @@ test('WEIGHT_EMA_ALPHA is 0.15', () => {
   assert.strictEqual(WEIGHT_EMA_ALPHA, 0.15);
 });
 
-test('emaWeeklyDelta: stub returns null (real impl in Task 2)', () => {
+test('emaWeeklyDelta: no args -> null', () => {
   assert.strictEqual(emaWeeklyDelta(), null);
+});
+
+test('emaWeeklyDelta: fewer than 2 entries -> null', () => {
+  assert.strictEqual(emaWeeklyDelta([], 0.15), null);
+  assert.strictEqual(emaWeeklyDelta([{ date: '2026-05-01', kg: 80 }], 0.15), null);
+});
+
+test('emaWeeklyDelta: span under 3 days -> null', () => {
+  const entries = [
+    { date: '2026-05-01', kg: 80 },
+    { date: '2026-05-02', kg: 80 },
+  ];
+  assert.strictEqual(emaWeeklyDelta(entries, 0.15), null);
+});
+
+test('emaWeeklyDelta: steady loss over 2+ weeks is negative', () => {
+  const entries = [];
+  for (let i = 0; i < 21; i++) {
+    const d = new Date(2026, 4, 1 + i);
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    entries.push({ date, kg: 84 - i * 0.1 });
+  }
+  const wk = emaWeeklyDelta(entries, 0.15);
+  assert.ok(wk < 0, `weekly delta was ${wk}`);
+});
+
+test('emaWeeklyDelta: flat tail after a decline reads near zero', () => {
+  // EMA with alpha=0.15 has a ~4-entry half-life; use 30 flat days so the
+  // smoother fully converges and the trailing 7-day delta approaches zero.
+  const entries = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(2026, 4, 1 + i);
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    entries.push({ date, kg: 84 - i * 0.28 });
+  }
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(2026, 4, 15 + i);
+    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    entries.push({ date, kg: 80 });
+  }
+  const wk = emaWeeklyDelta(entries, 0.15);
+  assert.ok(Math.abs(wk) < 0.15, `flat-tail weekly delta was ${wk}`);
 });

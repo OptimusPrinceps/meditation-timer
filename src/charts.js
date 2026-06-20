@@ -45,10 +45,10 @@ function linearRegression(entries) {
   return { slope, intercept, firstMs };
 }
 
-// Trailing exponential moving average over weigh-ins in plot order.
-// entries: [{date, kg}] ascending. Returns [{ms, kg}] (smoothed). [] if empty.
 const WEIGHT_EMA_ALPHA = 0.15;
 
+// Trailing exponential moving average over weigh-ins in plot order.
+// entries: [{date, kg}] ascending. Returns [{ms, kg}] (smoothed). [] if empty.
 function computeEMA(entries, alpha) {
   if (!entries.length) return [];
   let prev = entries[0].kg;

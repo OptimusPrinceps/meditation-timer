@@ -32,3 +32,7 @@ test('computeEMA: smooths a step (lags below the raw jump)', () => {
 test('WEIGHT_EMA_ALPHA is 0.15', () => {
   assert.strictEqual(WEIGHT_EMA_ALPHA, 0.15);
 });
+
+test('emaWeeklyDelta: stub returns null (real impl in Task 2)', () => {
+  assert.strictEqual(emaWeeklyDelta(), null);
+});

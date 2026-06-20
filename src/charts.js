@@ -45,6 +45,24 @@ function linearRegression(entries) {
   return { slope, intercept, firstMs };
 }
 
+// Trailing exponential moving average over weigh-ins in plot order.
+// entries: [{date, kg}] ascending. Returns [{ms, kg}] (smoothed). [] if empty.
+const WEIGHT_EMA_ALPHA = 0.15;
+
+function computeEMA(entries, alpha) {
+  if (!entries.length) return [];
+  let prev = entries[0].kg;
+  const out = [{ ms: parseDateLocal(entries[0].date).getTime(), kg: prev }];
+  for (let i = 1; i < entries.length; i++) {
+    prev = alpha * entries[i].kg + (1 - alpha) * prev;
+    out.push({ ms: parseDateLocal(entries[i].date).getTime(), kg: prev });
+  }
+  return out;
+}
+
+// Real implementation added in Task 2; stub keeps the module loadable for now.
+function emaWeeklyDelta() { return null; }
+
 function formatWeeklyChange(slope) {
   if (slope == null) return '—';
   const perWeek = slope * 7;
@@ -348,4 +366,10 @@ function renderGapChart(svg, gapPoints) {
       class: 'chart-dot',
     }));
   }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    computeEMA, emaWeeklyDelta, linearRegression, formatWeeklyChange, WEIGHT_EMA_ALPHA,
+  };
 }

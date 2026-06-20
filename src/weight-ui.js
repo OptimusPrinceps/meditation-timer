@@ -93,6 +93,7 @@ function refreshWeightView() {
   const regression = linearRegression(entries);
   els.weightCount.textContent = String(entries.length);
   els.weightWeekly.textContent = formatWeeklyChange(regression ? regression.slope : null);
+  // emaWeeklyDelta returns kg/wk; formatWeeklyChange wants kg/day (it ×7 internally).
   const recentDelta = emaWeeklyDelta(all, WEIGHT_EMA_ALPHA);
   els.weightWeeklyRecent.textContent =
     formatWeeklyChange(recentDelta == null ? null : recentDelta / 7);

@@ -3,6 +3,8 @@ const { test } = require('node:test');
 const assert = require('node:assert');
 const { computeEMA, emaWeeklyDelta, WEIGHT_EMA_ALPHA } = require('../src/charts');
 
+const isoDate = (y, m, d) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+
 test('computeEMA: empty input -> []', () => {
   assert.deepStrictEqual(computeEMA([], 0.15), []);
 });
@@ -53,12 +55,10 @@ test('emaWeeklyDelta: span under 3 days -> null', () => {
 test('emaWeeklyDelta: steady loss over 2+ weeks is negative', () => {
   const entries = [];
   for (let i = 0; i < 21; i++) {
-    const d = new Date(2026, 4, 1 + i);
-    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    entries.push({ date, kg: 84 - i * 0.1 });
+    entries.push({ date: isoDate(2026, 5, 1 + i), kg: 84 - i * 0.1 });
   }
   const wk = emaWeeklyDelta(entries, 0.15);
-  assert.ok(wk < 0, `weekly delta was ${wk}`);
+  assert.ok(wk > -1 && wk < -0.4, `weekly delta was ${wk}`);
 });
 
 test('emaWeeklyDelta: flat tail after a decline reads near zero', () => {
@@ -66,15 +66,25 @@ test('emaWeeklyDelta: flat tail after a decline reads near zero', () => {
   // smoother fully converges and the trailing 7-day delta approaches zero.
   const entries = [];
   for (let i = 0; i < 14; i++) {
-    const d = new Date(2026, 4, 1 + i);
-    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    entries.push({ date, kg: 84 - i * 0.28 });
+    entries.push({ date: isoDate(2026, 5, 1 + i), kg: 84 - i * 0.28 });
   }
   for (let i = 0; i < 30; i++) {
-    const d = new Date(2026, 4, 15 + i);
-    const date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-    entries.push({ date, kg: 80 });
+    entries.push({ date: isoDate(2026, 5, 15 + i), kg: 80 });
   }
   const wk = emaWeeklyDelta(entries, 0.15);
   assert.ok(Math.abs(wk) < 0.15, `flat-tail weekly delta was ${wk}`);
+});
+
+test('emaWeeklyDelta: 2-day span -> null, 3-day span -> non-null', () => {
+  const twoDay = [
+    { date: '2026-05-01', kg: 80 },
+    { date: '2026-05-02', kg: 80 },
+    { date: '2026-05-03', kg: 80 },
+  ]; // span = 2 days
+  assert.strictEqual(emaWeeklyDelta(twoDay, 0.15), null);
+  const threeDay = [
+    { date: '2026-05-01', kg: 81 },
+    { date: '2026-05-04', kg: 80 },
+  ]; // span = 3 days
+  assert.notStrictEqual(emaWeeklyDelta(threeDay, 0.15), null);
 });

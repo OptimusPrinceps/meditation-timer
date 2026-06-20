@@ -73,7 +73,7 @@ function emaWeeklyDelta(entries, alpha) {
     if (spanDays < 3) return null;
     return ((last.kg - first.kg) / spanDays) * 7;
   }
-  // t lies strictly between first.ms and last.ms: interpolate the EMA at t.
+  // Span > 7 days: t is strictly inside the series; interpolate the EMA at t.
   let i = 0;
   while (i < series.length - 1 && series[i + 1].ms <= t) i++;
   const a = series[i], b = series[i + 1];
